@@ -2,7 +2,7 @@
 import React from 'react';
 import { 
   Utensils, Car, ShoppingCart, Home, Smile, Wifi, 
-  Gift, Heart, Shirt, FirstAid, Landmark, Folder,
+  Gift, Heart, Shirt, Activity, Landmark, Folder,
   Briefcase, TrendingUp, Award, LucideIcon
 } from 'lucide-react';
 
@@ -22,7 +22,7 @@ const iconMap: Record<string, LucideIcon> = {
   gift: Gift,
   heart: Heart,
   shirt: Shirt,
-  'first-aid': FirstAid,
+  'activity': Activity, // Changed from 'first-aid' to 'activity'
   landmark: Landmark,
   folder: Folder,
   briefcase: Briefcase,
