@@ -7,16 +7,22 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatCurrency } from '@/lib/formatCurrency';
 import CategoryIcon from './CategoryIcon';
+import { isSameMonth, isSameYear, parseISO } from 'date-fns';
 
 type GroupBy = 'category' | 'account' | 'member';
 
 const ChartAnalysis = () => {
-  const { transactions, categories, accounts, members } = useFinance();
+  const { transactions, categories, accounts, members, selectedDate } = useFinance();
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   const [groupBy, setGroupBy] = useState<GroupBy>('category');
   
-  // Filter transactions by type
-  const filteredTransactions = transactions.filter(t => t.type === transactionType);
+  // Filter transactions by type and selected month/year
+  const filteredTransactions = transactions.filter(t => {
+    const transactionDate = parseISO(t.date);
+    return t.type === transactionType && 
+           isSameMonth(transactionDate, selectedDate) && 
+           isSameYear(transactionDate, selectedDate);
+  });
   
   // Group and sum transactions
   const groupedData = filteredTransactions.reduce((result, transaction) => {
@@ -125,42 +131,43 @@ const ChartAnalysis = () => {
             No {transactionType} data available
           </div>
         ) : (
-          <>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderLabel}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="w-full md:w-1/2">
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderLabel}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
             
-            <div className="mt-6">
-              <h3 className="font-medium mb-2">Breakdown</h3>
-              <div className="space-y-2">
+            <div className="w-full md:w-1/2">
+              <h3 className="font-medium mb-3">Breakdown</h3>
+              <div className="max-h-[300px] overflow-y-auto pr-2 space-y-3">
                 {chartData.map((item, index) => {
                   const percent = Math.round((item.value / total) * 100);
                   const category = categories.find(c => c.id === item.id);
                   
                   return (
-                    <div key={item.id} className="flex items-center justify-between">
+                    <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                       <div className="flex items-center gap-2">
                         <div 
-                          className="w-3 h-3 rounded-full" 
+                          className="w-4 h-4 rounded-full" 
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         ></div>
                         <div className="flex items-center gap-1">
@@ -170,16 +177,16 @@ const ChartAnalysis = () => {
                           <span>{item.name}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span>{formatCurrency(item.value)}</span>
-                        <span className="text-sm text-gray-500">{percent}%</span>
+                      <div className="flex flex-col items-end">
+                        <span className="font-medium">{formatCurrency(item.value)}</span>
+                        <span className="text-xs text-gray-500">{percent}%</span>
                       </div>
                     </div>
                   );
                 })}
               </div>
             </div>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -5,15 +5,18 @@ import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
-import { BookOpen, Pencil, Check } from 'lucide-react';
+import { BookOpen, Pencil, Check, PlusCircle, Calendar } from 'lucide-react';
 import MonthlySummary from '@/components/MonthlySummary';
 import TransactionList from '@/components/TransactionList';
-import TransactionForm from '@/components/TransactionForm';
+import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MonthYearPicker from '@/components/MonthYearPicker';
 
 const Index = () => {
   const { currentBook, addBook } = useFinance();
   const [isEditingBookName, setIsEditingBookName] = useState(false);
   const [bookName, setBookName] = useState(currentBook.name);
+  const navigate = useNavigate();
   
   const handleSaveBookName = () => {
     if (bookName.trim()) {
@@ -66,9 +69,38 @@ const Index = () => {
         </Card>
         
         <div className="space-y-6">
+          <MonthYearPicker />
           <MonthlySummary />
-          <TransactionForm />
-          <TransactionList />
+          
+          <Button 
+            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-6 text-lg"
+            onClick={() => navigate('/add-transaction')}
+          >
+            <PlusCircle className="mr-2" size={20} />
+            Add Transaction
+          </Button>
+          
+          <Tabs defaultValue="list">
+            <TabsList className="grid grid-cols-2 mb-4">
+              <TabsTrigger value="list">List</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            </TabsList>
+            <TabsContent value="list">
+              <TransactionList />
+            </TabsContent>
+            <TabsContent value="calendar">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-center h-96 text-gray-400">
+                    <Calendar size={64} className="opacity-20" />
+                  </div>
+                  <div className="text-center text-gray-500">
+                    Calendar view coming soon
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </Layout>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { useFinance, TransactionType } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isSameMonth, isSameYear } from 'date-fns';
 import CategoryIcon from './CategoryIcon';
 import { cn } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
@@ -60,10 +60,16 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
 };
 
 const TransactionList = () => {
-  const { transactions, deleteTransaction } = useFinance();
+  const { transactions, deleteTransaction, selectedDate } = useFinance();
+  
+  // Filter transactions for the selected month and year
+  const filteredTransactions = transactions.filter(t => {
+    const transactionDate = parseISO(t.date);
+    return isSameMonth(transactionDate, selectedDate) && isSameYear(transactionDate, selectedDate);
+  });
   
   // Group transactions by date
-  const transactionsByDate = transactions.reduce((groups, transaction) => {
+  const transactionsByDate = filteredTransactions.reduce((groups, transaction) => {
     const date = transaction.date;
     if (!groups[date]) {
       groups[date] = [];
@@ -90,23 +96,47 @@ const TransactionList = () => {
         {sortedDates.length === 0 ? (
           <div className="text-center py-8 text-gray-500">No transactions yet</div>
         ) : (
-          sortedDates.map(date => (
-            <div key={date}>
-              <div className="px-4 py-2 bg-gray-50 font-medium">
-                {format(parseISO(date), 'EEEE, MMMM d, yyyy')}
+          sortedDates.map(date => {
+            const dailyTransactions = transactionsByDate[date];
+            const dailyIncomeTotal = dailyTransactions
+              .filter(t => t.type === 'income')
+              .reduce((sum, t) => sum + t.amount, 0);
+            const dailyExpenseTotal = dailyTransactions
+              .filter(t => t.type === 'expense')
+              .reduce((sum, t) => sum + t.amount, 0);
+            
+            return (
+              <div key={date}>
+                <div className="px-4 py-2 bg-gray-50 font-medium">
+                  {format(parseISO(date), 'EEEE, MMMM d, yyyy')}
+                </div>
+                {dailyTransactions
+                  .sort((a, b) => Number(b.id) - Number(a.id))
+                  .map(transaction => (
+                    <TransactionItem 
+                      key={transaction.id} 
+                      transaction={transaction} 
+                      onDelete={handleDelete}
+                    />
+                  ))
+                }
+                <div className="p-3 bg-gray-50/50 flex justify-between items-center text-sm">
+                  <span>Daily Totals:</span>
+                  <div className="space-x-4">
+                    <span className="text-income">
+                      In: {formatCurrency(dailyIncomeTotal)}
+                    </span>
+                    <span className="text-expense">
+                      Out: {formatCurrency(dailyExpenseTotal)}
+                    </span>
+                    <span className={dailyIncomeTotal - dailyExpenseTotal >= 0 ? 'text-income' : 'text-expense'}>
+                      Net: {formatCurrency(dailyIncomeTotal - dailyExpenseTotal)}
+                    </span>
+                  </div>
+                </div>
               </div>
-              {transactionsByDate[date]
-                .sort((a, b) => Number(b.id) - Number(a.id))
-                .map(transaction => (
-                  <TransactionItem 
-                    key={transaction.id} 
-                    transaction={transaction} 
-                    onDelete={handleDelete}
-                  />
-                ))
-              }
-            </div>
-          ))
+            );
+          })
         )}
       </CardContent>
     </Card>

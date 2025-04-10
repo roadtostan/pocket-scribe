@@ -4,18 +4,15 @@ import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { formatCurrency } from '@/lib/formatCurrency';
+import { format, isSameMonth, isSameYear, parseISO } from 'date-fns';
 
 const MonthlySummary = () => {
-  const { transactions, currentBook } = useFinance();
-  
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  const { transactions, selectedDate } = useFinance();
   
   const monthlyTransactions = transactions.filter(transaction => {
-    const transactionDate = new Date(transaction.date);
-    return transactionDate.getMonth() === currentMonth && 
-           transactionDate.getFullYear() === currentYear;
+    const transactionDate = parseISO(transaction.date);
+    return isSameMonth(transactionDate, selectedDate) && 
+           isSameYear(transactionDate, selectedDate);
   });
   
   const totalIncome = monthlyTransactions
@@ -34,7 +31,7 @@ const MonthlySummary = () => {
         <CardTitle className="flex justify-between items-center">
           <span>Monthly Summary</span>
           <span className="text-sm font-normal text-muted-foreground">
-            {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+            {format(selectedDate, 'MMMM yyyy')}
           </span>
         </CardTitle>
       </CardHeader>
