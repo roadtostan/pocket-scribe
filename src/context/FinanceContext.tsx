@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,20 +13,20 @@ export type TransactionType = {
   description: string;
 };
 
-type CategoryType = {
+export type CategoryType = {
   id: string;
   name: string;
   icon: string;
 };
 
-type AccountType = {
+export type AccountType = {
   id: string;
   name: string;
-  type: 'Cash' | 'Bank' | 'Credit Card' | 'Investment' | 'Debt';
+  type: 'Cash' | 'Bank' | 'Credit Card' | 'Investment' | 'Debt' | 'Conventional Bank' | 'Digital Bank' | 'Ewallet';
   balance: number;
 };
 
-type MemberType = {
+export type MemberType = {
   id: string;
   name: string;
 };
@@ -47,7 +48,8 @@ type FinanceContextType = {
   addTransaction: (transaction: Omit<TransactionType, 'id'>) => void;
   deleteTransaction: (id: string) => void;
   addCategory: (category: Omit<CategoryType, 'id'>) => void;
-  addAccount: (account: Omit<AccountType, 'id'>) => void;
+  addAccount: (name: string, type: AccountType['type'], balance: number) => void;
+  updateAccount: (id: string, updates: Partial<Omit<AccountType, 'id'>>) => void;
   addMember: (member: Omit<MemberType, 'id'>) => void;
   addBook: (name: string) => void;
   setSelectedDate: (date: Date) => void;
@@ -151,12 +153,20 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setCategories([...categories, newCategory]);
   };
 
-  const addAccount = (account: Omit<AccountType, 'id'>) => {
+  const addAccount = (name: string, type: AccountType['type'], balance: number) => {
     const newAccount: AccountType = {
       id: uuidv4(),
-      ...account,
+      name,
+      type,
+      balance,
     };
     setAccounts([...accounts, newAccount]);
+  };
+
+  const updateAccount = (id: string, updates: Partial<Omit<AccountType, 'id'>>) => {
+    setAccounts(accounts.map(account => 
+      account.id === id ? { ...account, ...updates } : account
+    ));
   };
 
   const addMember = (member: Omit<MemberType, 'id'>) => {
@@ -189,6 +199,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     deleteTransaction,
     addCategory,
     addAccount,
+    updateAccount,
     addMember,
     addBook,
     setSelectedDate,

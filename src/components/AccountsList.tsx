@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFinance, AccountType } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,7 +41,6 @@ const AccountsList = () => {
     'Debt',
   ];
   
-  // Group accounts by type
   const accountsByType = accounts.reduce((groups, account) => {
     if (!groups[account.type]) {
       groups[account.type] = [];
@@ -71,14 +69,12 @@ const AccountsList = () => {
       return;
     }
     
-    // For debt accounts, make the balance negative if positive
     const finalBalance = newAccountType === 'Debt' && parsedBalance > 0 
       ? -parsedBalance 
       : parsedBalance;
     
     addAccount(newAccountName, newAccountType, finalBalance);
     
-    // Reset form
     setNewAccountName('');
     setNewAccountType('Cash');
     setNewAccountBalance('');
@@ -102,7 +98,6 @@ const AccountsList = () => {
       return;
     }
     
-    // For debt accounts, make the balance negative if positive
     const finalBalance = accountToEdit.type === 'Debt'
       ? -Math.abs(parsedBalance)
       : Math.abs(parsedBalance);
