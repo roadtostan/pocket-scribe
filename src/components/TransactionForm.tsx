@@ -23,6 +23,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CategoryIcon from './CategoryIcon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
+import AddCategoryDialog from './AddCategoryDialog';
+import AddMemberDialog from './AddMemberDialog';
 
 const TransactionForm = () => {
   const { categories, members, accounts, addTransaction } = useFinance();
@@ -215,29 +217,31 @@ const TransactionForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories
-                  .filter(cat => {
-                    // Filter categories based on transaction type
-                    if (transactionType === 'income') {
-                      return ['Salary', 'Investment', 'Bonus'].includes(cat.name);
-                    }
-                    return !['Salary', 'Investment', 'Bonus'].includes(cat.name);
-                  })
-                  .map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      <div className="flex items-center gap-2">
-                        <CategoryIcon iconName={category.icon} />
-                        {category.name}
-                      </div>
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 items-center">
+              <Select value={categoryId} onValueChange={setCategoryId} className="flex-1">
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories
+                    .filter(cat => {
+                      if (transactionType === 'income') {
+                        return ['Salary', 'Investment', 'Bonus'].includes(cat.name);
+                      }
+                      return !['Salary', 'Investment', 'Bonus'].includes(cat.name);
+                    })
+                    .map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon iconName={category.icon} />
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <AddCategoryDialog />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -258,18 +262,21 @@ const TransactionForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="member">Member</Label>
-            <Select value={memberId} onValueChange={setMemberId}>
-              <SelectTrigger id="member">
-                <SelectValue placeholder="Select member" />
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2 items-center">
+              <Select value={memberId} onValueChange={setMemberId} className="flex-1">
+                <SelectTrigger id="member">
+                  <SelectValue placeholder="Select member" />
+                </SelectTrigger>
+                <SelectContent>
+                  {members.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <AddMemberDialog />
+            </div>
           </div>
 
           <div className="space-y-2">
