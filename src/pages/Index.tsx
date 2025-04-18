@@ -5,15 +5,22 @@ import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
-import { BookOpen, Pencil, Check, PlusCircle, Calendar } from 'lucide-react';
+import { BookOpen, Pencil, Check, PlusCircle, Calendar, ChevronDown } from 'lucide-react';
 import MonthlySummary from '@/components/MonthlySummary';
 import TransactionList from '@/components/TransactionList';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MonthYearPicker from '@/components/MonthYearPicker';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from 'sonner';
 
 const Index = () => {
-  const { currentBook, addBook } = useFinance();
+  const { currentBook, books, addBook, setCurrentBook } = useFinance();
   const [isEditingBookName, setIsEditingBookName] = useState(false);
   const [bookName, setBookName] = useState(currentBook.name);
   const navigate = useNavigate();
@@ -22,6 +29,15 @@ const Index = () => {
     if (bookName.trim()) {
       addBook(bookName);
       setIsEditingBookName(false);
+      toast.success('Book created successfully');
+    }
+  };
+
+  const handleBookChange = (bookId: string) => {
+    const book = books.find(b => b.id === bookId);
+    if (book) {
+      setCurrentBook(book);
+      toast.success(`Switched to ${book.name}`);
     }
   };
   
@@ -51,16 +67,44 @@ const Index = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-xl font-bold">{currentBook.name}</h1>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-white/70 hover:text-white hover:bg-white/10"
-                      onClick={() => setIsEditingBookName(true)}
-                    >
-                      <Pencil size={14} />
-                    </Button>
+                  <div className="flex items-center gap-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10">
+                          <h1 className="text-xl font-bold">{currentBook.name}</h1>
+                          <ChevronDown size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        {books.map((book) => (
+                          <DropdownMenuItem
+                            key={book.id}
+                            onClick={() => handleBookChange(book.id)}
+                            className="flex items-center gap-2"
+                          >
+                            <BookOpen size={16} />
+                            {book.name}
+                          </DropdownMenuItem>
+                        ))}
+                        <DropdownMenuItem
+                          onClick={() => setIsEditingBookName(true)}
+                          className="flex items-center gap-2 border-t"
+                        >
+                          <PlusCircle size={16} />
+                          Create New Book
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    {!isEditingBookName && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-white/70 hover:text-white hover:bg-white/10"
+                        onClick={() => setIsEditingBookName(true)}
+                      >
+                        <Pencil size={14} />
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

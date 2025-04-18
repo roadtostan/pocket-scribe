@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type TransactionType = {
   id: string;
+  bookId: string;
   amount: number;
   type: 'income' | 'expense';
   categoryId: string;
@@ -15,12 +16,14 @@ export type TransactionType = {
 
 export type CategoryType = {
   id: string;
+  bookId: string;
   name: string;
   icon: string;
 };
 
 export type AccountType = {
   id: string;
+  bookId: string;
   name: string;
   type: 'Cash' | 'Bank' | 'Credit Card' | 'Investment' | 'Debt' | 'Conventional Bank' | 'Digital Bank' | 'Ewallet';
   balance: number;
@@ -28,6 +31,7 @@ export type AccountType = {
 
 export type MemberType = {
   id: string;
+  bookId: string;
   name: string;
 };
 
@@ -45,13 +49,14 @@ type FinanceContextType = {
   currentBook: BookType;
   selectedDate: Date;
   
-  addTransaction: (transaction: Omit<TransactionType, 'id'>) => void;
+  addTransaction: (transaction: Omit<TransactionType, 'id' | 'bookId'>) => void;
   deleteTransaction: (id: string) => void;
-  addCategory: (category: Omit<CategoryType, 'id'>) => void;
+  addCategory: (category: Omit<CategoryType, 'id' | 'bookId'>) => void;
   addAccount: (name: string, type: AccountType['type'], balance: number) => void;
-  updateAccount: (id: string, updates: Partial<Omit<AccountType, 'id'>>) => void;
-  addMember: (member: Omit<MemberType, 'id'>) => void;
+  updateAccount: (id: string, updates: Partial<Omit<AccountType, 'id' | 'bookId'>>) => void;
+  addMember: (member: Omit<MemberType, 'id' | 'bookId'>) => void;
   addBook: (name: string) => void;
+  setCurrentBook: (book: BookType) => void;
   setSelectedDate: (date: Date) => void;
 };
 
@@ -68,36 +73,15 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   });
   const [categories, setCategories] = useState<CategoryType[]>(() => {
     const storedCategories = localStorage.getItem('categories');
-    return storedCategories ? JSON.parse(storedCategories) : [
-      { id: '1', name: 'Food', icon: 'utensils' },
-      { id: '2', name: 'Transportation', icon: 'car' },
-      { id: '3', name: 'Shopping', icon: 'shopping-cart' },
-      { id: '4', name: 'Housing', icon: 'home' },
-      { id: '5', name: 'Entertainment', icon: 'smile' },
-      { id: '6', name: 'Utilities', icon: 'wifi' },
-      { id: '7', name: 'Gifts', icon: 'gift' },
-      { id: '8', name: 'Health', icon: 'heart' },
-      { id: '9', name: 'Clothing', icon: 'shirt' },
-      { id: '10', name: 'Activities', icon: 'activity' },
-      { id: '11', name: 'Travel', icon: 'landmark' },
-      { id: '12', name: 'Others', icon: 'folder' },
-      { id: '13', name: 'Salary', icon: 'briefcase' },
-      { id: '14', name: 'Investment', icon: 'trending-up' },
-      { id: '15', name: 'Bonus', icon: 'award' },
-    ];
+    return storedCategories ? JSON.parse(storedCategories) : [];
   });
   const [accounts, setAccounts] = useState<AccountType[]>(() => {
     const storedAccounts = localStorage.getItem('accounts');
-    return storedAccounts ? JSON.parse(storedAccounts) : [
-      { id: '1', name: 'Cash', type: 'Cash', balance: 0 },
-      { id: '2', name: 'Bank', type: 'Bank', balance: 0 },
-    ];
+    return storedAccounts ? JSON.parse(storedAccounts) : [];
   });
   const [members, setMembers] = useState<MemberType[]>(() => {
     const storedMembers = localStorage.getItem('members');
-    return storedMembers ? JSON.parse(storedMembers) : [
-      { id: '1', name: 'John Doe' },
-    ];
+    return storedMembers ? JSON.parse(storedMembers) : [];
   });
   const [books, setBooks] = useState<BookType[]>(() => {
     const storedBooks = localStorage.getItem('books');
@@ -108,6 +92,47 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     return storedCurrentBook ? JSON.parse(storedCurrentBook) : { id: '1', name: 'Personal Finance' };
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  // Initialize default categories for a new book
+  const initializeDefaultCategories = (bookId: string) => {
+    const defaultCategories: CategoryType[] = [
+      { id: uuidv4(), bookId, name: 'Food', icon: 'utensils' },
+      { id: uuidv4(), bookId, name: 'Transportation', icon: 'car' },
+      { id: uuidv4(), bookId, name: 'Shopping', icon: 'shopping-cart' },
+      { id: uuidv4(), bookId, name: 'Housing', icon: 'home' },
+      { id: uuidv4(), bookId, name: 'Entertainment', icon: 'smile' },
+      { id: uuidv4(), bookId, name: 'Utilities', icon: 'wifi' },
+      { id: uuidv4(), bookId, name: 'Gifts', icon: 'gift' },
+      { id: uuidv4(), bookId, name: 'Health', icon: 'heart' },
+      { id: uuidv4(), bookId, name: 'Clothing', icon: 'shirt' },
+      { id: uuidv4(), bookId, name: 'Activities', icon: 'activity' },
+      { id: uuidv4(), bookId, name: 'Travel', icon: 'landmark' },
+      { id: uuidv4(), bookId, name: 'Others', icon: 'folder' },
+      { id: uuidv4(), bookId, name: 'Salary', icon: 'briefcase' },
+      { id: uuidv4(), bookId, name: 'Investment', icon: 'trending-up' },
+      { id: uuidv4(), bookId, name: 'Bonus', icon: 'award' },
+    ];
+    setCategories(prev => [...prev, ...defaultCategories]);
+  };
+
+  // Initialize default accounts for a new book
+  const initializeDefaultAccounts = (bookId: string) => {
+    const defaultAccounts: AccountType[] = [
+      { id: uuidv4(), bookId, name: 'Cash', type: 'Cash', balance: 0 },
+      { id: uuidv4(), bookId, name: 'Bank', type: 'Bank', balance: 0 },
+    ];
+    setAccounts(prev => [...prev, ...defaultAccounts]);
+  };
+
+  // Initialize default member for a new book
+  const initializeDefaultMember = (bookId: string) => {
+    const defaultMember: MemberType = {
+      id: uuidv4(),
+      bookId,
+      name: 'John Doe',
+    };
+    setMembers(prev => [...prev, defaultMember]);
+  };
 
   useEffect(() => {
     localStorage.setItem('transactions', JSON.stringify(transactions));
@@ -133,9 +158,16 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     localStorage.setItem('currentBook', JSON.stringify(currentBook));
   }, [currentBook]);
 
-  const addTransaction = (transaction: Omit<TransactionType, 'id'>) => {
+  // Filter data based on current book
+  const filteredTransactions = transactions.filter(t => t.bookId === currentBook.id);
+  const filteredCategories = categories.filter(c => c.bookId === currentBook.id);
+  const filteredAccounts = accounts.filter(a => a.bookId === currentBook.id);
+  const filteredMembers = members.filter(m => m.bookId === currentBook.id);
+
+  const addTransaction = (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
     const newTransaction: TransactionType = {
       id: uuidv4(),
+      bookId: currentBook.id,
       ...transaction,
     };
     setTransactions([...transactions, newTransaction]);
@@ -145,9 +177,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setTransactions(transactions.filter(transaction => transaction.id !== id));
   };
 
-  const addCategory = (category: Omit<CategoryType, 'id'>) => {
+  const addCategory = (category: Omit<CategoryType, 'id' | 'bookId'>) => {
     const newCategory: CategoryType = {
       id: uuidv4(),
+      bookId: currentBook.id,
       ...category,
     };
     setCategories([...categories, newCategory]);
@@ -156,6 +189,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const addAccount = (name: string, type: AccountType['type'], balance: number) => {
     const newAccount: AccountType = {
       id: uuidv4(),
+      bookId: currentBook.id,
       name,
       type,
       balance,
@@ -163,15 +197,16 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setAccounts([...accounts, newAccount]);
   };
 
-  const updateAccount = (id: string, updates: Partial<Omit<AccountType, 'id'>>) => {
+  const updateAccount = (id: string, updates: Partial<Omit<AccountType, 'id' | 'bookId'>>) => {
     setAccounts(accounts.map(account => 
       account.id === id ? { ...account, ...updates } : account
     ));
   };
 
-  const addMember = (member: Omit<MemberType, 'id'>) => {
+  const addMember = (member: Omit<MemberType, 'id' | 'bookId'>) => {
     const newMember: MemberType = {
       id: uuidv4(),
+      bookId: currentBook.id,
       ...member,
     };
     setMembers([...members, newMember]);
@@ -184,13 +219,27 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     };
     setBooks([...books, newBook]);
     setCurrentBook(newBook);
+    
+    // Initialize default data for the new book
+    initializeDefaultCategories(newBook.id);
+    initializeDefaultAccounts(newBook.id);
+    initializeDefaultMember(newBook.id);
   };
 
+  // Initialize default data for the first book if it doesn't exist
+  useEffect(() => {
+    if (categories.length === 0 || accounts.length === 0 || members.length === 0) {
+      initializeDefaultCategories(currentBook.id);
+      initializeDefaultAccounts(currentBook.id);
+      initializeDefaultMember(currentBook.id);
+    }
+  }, []);
+
   const value: FinanceContextType = {
-    transactions,
-    categories,
-    accounts,
-    members,
+    transactions: filteredTransactions,
+    categories: filteredCategories,
+    accounts: filteredAccounts,
+    members: filteredMembers,
     books,
     currentBook,
     selectedDate,
@@ -202,6 +251,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     updateAccount,
     addMember,
     addBook,
+    setCurrentBook,
     setSelectedDate,
   };
 
