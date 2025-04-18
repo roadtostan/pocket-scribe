@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
 
 export type TransactionType = {
@@ -66,177 +67,258 @@ interface FinanceProviderProps {
 }
 
 export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) => {
-  const [transactions, setTransactions] = useState<TransactionType[]>(() => {
-    const storedTransactions = localStorage.getItem('transactions')
-    return storedTransactions ? JSON.parse(storedTransactions) : [];
-  });
-  const [categories, setCategories] = useState<CategoryType[]>(() => {
-    const storedCategories = localStorage.getItem('categories');
-    return storedCategories ? JSON.parse(storedCategories) : [];
-  });
-  const [accounts, setAccounts] = useState<AccountType[]>(() => {
-    const storedAccounts = localStorage.getItem('accounts');
-    return storedAccounts ? JSON.parse(storedAccounts) : [];
-  });
-  const [members, setMembers] = useState<MemberType[]>(() => {
-    const storedMembers = localStorage.getItem('members');
-    return storedMembers ? JSON.parse(storedMembers) : [];
-  });
-  const [books, setBooks] = useState<BookType[]>(() => {
-    const storedBooks = localStorage.getItem('books');
-    return storedBooks ? JSON.parse(storedBooks) : [{ id: '1', name: 'Personal Finance' }];
-  });
-  const [currentBook, setCurrentBook] = useState<BookType>(() => {
-    const storedCurrentBook = localStorage.getItem('currentBook');
-    return storedCurrentBook ? JSON.parse(storedCurrentBook) : { id: '1', name: 'Personal Finance' };
-  });
+  const [transactions, setTransactions] = useState<TransactionType[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [accounts, setAccounts] = useState<AccountType[]>([]);
+  const [members, setMembers] = useState<MemberType[]>([]);
+  const [books, setBooks] = useState<BookType[]>([]);
+  const [currentBook, setCurrentBook] = useState<BookType>({ id: '1', name: 'Personal Finance' });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [loading, setLoading] = useState(true);
 
-  const initializeDefaultCategories = (bookId: string) => {
-    const defaultCategories: CategoryType[] = [
-      { id: uuidv4(), bookId, name: 'Food', icon: 'utensils' },
-      { id: uuidv4(), bookId, name: 'Transportation', icon: 'car' },
-      { id: uuidv4(), bookId, name: 'Shopping', icon: 'shopping-cart' },
-      { id: uuidv4(), bookId, name: 'Housing', icon: 'home' },
-      { id: uuidv4(), bookId, name: 'Entertainment', icon: 'smile' },
-      { id: uuidv4(), bookId, name: 'Utilities', icon: 'wifi' },
-      { id: uuidv4(), bookId, name: 'Gifts', icon: 'gift' },
-      { id: uuidv4(), bookId, name: 'Health', icon: 'heart' },
-      { id: uuidv4(), bookId, name: 'Clothing', icon: 'shirt' },
-      { id: uuidv4(), bookId, name: 'Activities', icon: 'activity' },
-      { id: uuidv4(), bookId, name: 'Travel', icon: 'landmark' },
-      { id: uuidv4(), bookId, name: 'Others', icon: 'folder' },
-      { id: uuidv4(), bookId, name: 'Salary', icon: 'briefcase' },
-      { id: uuidv4(), bookId, name: 'Investment', icon: 'trending-up' },
-      { id: uuidv4(), bookId, name: 'Bonus', icon: 'award' },
-    ];
-    setCategories(prev => [...prev, ...defaultCategories]);
-  };
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch books
+        const { data: booksData, error: booksError } = await supabase
+          .from('books')
+          .select('*');
+        
+        if (booksError) throw booksError;
+        
+        if (booksData && booksData.length > 0) {
+          setBooks(booksData);
+          setCurrentBook(booksData[0]);
+          
+          // Fetch other data for the current book
+          const bookId = booksData[0].id;
+          
+          const [
+            { data: categoriesData, error: categoriesError },
+            { data: accountsData, error: accountsError },
+            { data: membersData, error: membersError },
+            { data: transactionsData, error: transactionsError }
+          ] = await Promise.all([
+            supabase.from('categories').select('*').eq('book_id', bookId),
+            supabase.from('accounts').select('*').eq('book_id', bookId),
+            supabase.from('members').select('*').eq('book_id', bookId),
+            supabase.from('transactions').select('*').eq('book_id', bookId)
+          ]);
 
-  const initializeDefaultAccounts = (bookId: string) => {
-    const defaultAccounts: AccountType[] = [
-      { id: uuidv4(), bookId, name: 'Cash', type: 'Cash', balance: 0 },
-      { id: uuidv4(), bookId, name: 'Bank', type: 'Bank', balance: 0 },
-    ];
-    setAccounts(prev => [...prev, ...defaultAccounts]);
-  };
+          if (categoriesError) throw categoriesError;
+          if (accountsError) throw accountsError;
+          if (membersError) throw membersError;
+          if (transactionsError) throw transactionsError;
 
-  const initializeDefaultMember = (bookId: string) => {
-    const defaultMember: MemberType = {
-      id: uuidv4(),
-      bookId,
-      name: 'John Doe',
+          setCategories(categoriesData || []);
+          setAccounts(accountsData || []);
+          setMembers(membersData || []);
+          setTransactions(transactionsData || []);
+        } else {
+          // Create default book if none exists
+          const { data: newBook, error: createBookError } = await supabase
+            .from('books')
+            .insert({ name: 'Personal Finance' })
+            .select()
+            .single();
+            
+          if (createBookError) throw createBookError;
+          
+          if (newBook) {
+            setBooks([newBook]);
+            setCurrentBook(newBook);
+            await initializeDefaultData(newBook.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    setMembers(prev => [...prev, defaultMember]);
-  };
 
-  useEffect(() => {
-    localStorage.setItem('transactions', JSON.stringify(transactions));
-  }, [transactions]);
-
-  useEffect(() => {
-    localStorage.setItem('categories', JSON.stringify(categories));
-  }, [categories]);
-
-  useEffect(() => {
-    localStorage.setItem('accounts', JSON.stringify(accounts));
-  }, [accounts]);
-
-  useEffect(() => {
-    localStorage.setItem('members', JSON.stringify(members));
-  }, [members]);
-  
-  useEffect(() => {
-    localStorage.setItem('books', JSON.stringify(books));
-  }, [books]);
-
-  useEffect(() => {
-    localStorage.setItem('currentBook', JSON.stringify(currentBook));
-  }, [currentBook]);
-
-  const filteredTransactions = transactions.filter(t => t.bookId === currentBook.id);
-  const filteredCategories = categories.filter(c => c.bookId === currentBook.id);
-  const filteredAccounts = accounts.filter(a => a.bookId === currentBook.id);
-  const filteredMembers = members.filter(m => m.bookId === currentBook.id);
-
-  const addTransaction = (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
-    const newTransaction: TransactionType = {
-      id: uuidv4(),
-      bookId: currentBook.id,
-      ...transaction,
-    };
-    setTransactions([...transactions, newTransaction]);
-  };
-
-  const deleteTransaction = (id: string) => {
-    setTransactions(transactions.filter(transaction => transaction.id !== id));
-  };
-
-  const addCategory = (category: Omit<CategoryType, 'id' | 'bookId'>) => {
-    const newCategory: CategoryType = {
-      id: uuidv4(),
-      bookId: currentBook.id,
-      ...category,
-    };
-    setCategories([...categories, newCategory]);
-  };
-
-  const addAccount = (name: string, type: AccountType['type'], balance: number) => {
-    const newAccount: AccountType = {
-      id: uuidv4(),
-      bookId: currentBook.id,
-      name,
-      type,
-      balance,
-    };
-    setAccounts([...accounts, newAccount]);
-  };
-
-  const updateAccount = (id: string, updates: Partial<Omit<AccountType, 'id' | 'bookId'>>) => {
-    setAccounts(accounts.map(account => 
-      account.id === id ? { ...account, ...updates } : account
-    ));
-  };
-
-  const addMember = (member: Omit<MemberType, 'id' | 'bookId'>) => {
-    const newMember: MemberType = {
-      id: uuidv4(),
-      bookId: currentBook.id,
-      ...member,
-    };
-    setMembers([...members, newMember]);
-  };
-  
-  const addBook = (name: string) => {
-    const newBook: BookType = {
-      id: uuidv4(),
-      name: name,
-    };
-    setBooks([...books, newBook]);
-    setCurrentBook(newBook);
-    
-    initializeDefaultCategories(newBook.id);
-    initializeDefaultAccounts(newBook.id);
-    initializeDefaultMember(newBook.id);
-  };
-
-  useEffect(() => {
-    if (categories.length === 0 || accounts.length === 0 || members.length === 0) {
-      initializeDefaultCategories(currentBook.id);
-      initializeDefaultAccounts(currentBook.id);
-      initializeDefaultMember(currentBook.id);
-    }
+    fetchData();
   }, []);
 
-  const value: FinanceContextType = {
-    transactions: filteredTransactions,
-    categories: filteredCategories,
-    accounts: filteredAccounts,
-    members: filteredMembers,
+  // Initialize default data for a new book
+  const initializeDefaultData = async (bookId: string) => {
+    try {
+      // Create default categories
+      const defaultCategories = [
+        { book_id: bookId, name: 'Food', icon: 'utensils' },
+        { book_id: bookId, name: 'Transportation', icon: 'car' },
+        { book_id: bookId, name: 'Shopping', icon: 'shopping-cart' },
+        { book_id: bookId, name: 'Housing', icon: 'home' },
+        { book_id: bookId, name: 'Entertainment', icon: 'smile' },
+        { book_id: bookId, name: 'Utilities', icon: 'wifi' },
+        { book_id: bookId, name: 'Gifts', icon: 'gift' },
+        { book_id: bookId, name: 'Health', icon: 'heart' },
+        { book_id: bookId, name: 'Clothing', icon: 'shirt' },
+        { book_id: bookId, name: 'Activities', icon: 'activity' },
+        { book_id: bookId, name: 'Travel', icon: 'landmark' },
+        { book_id: bookId, name: 'Others', icon: 'folder' },
+        { book_id: bookId, name: 'Salary', icon: 'briefcase' },
+        { book_id: bookId, name: 'Investment', icon: 'trending-up' },
+        { book_id: bookId, name: 'Bonus', icon: 'award' }
+      ];
+
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .insert(defaultCategories)
+        .select();
+
+      if (categoriesData) setCategories(categoriesData);
+
+      // Create default accounts
+      const defaultAccounts = [
+        { book_id: bookId, name: 'Cash', type: 'Cash', balance: 0 },
+        { book_id: bookId, name: 'Bank', type: 'Bank', balance: 0 }
+      ];
+
+      const { data: accountsData } = await supabase
+        .from('accounts')
+        .insert(defaultAccounts)
+        .select();
+
+      if (accountsData) setAccounts(accountsData);
+
+      // Create default member
+      const { data: memberData } = await supabase
+        .from('members')
+        .insert({ book_id: bookId, name: 'John Doe' })
+        .select()
+        .single();
+
+      if (memberData) setMembers([memberData]);
+
+    } catch (error) {
+      console.error('Error initializing default data:', error);
+    }
+  };
+
+  // Update functions to use Supabase
+  const addTransaction = async (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert({ ...transaction, book_id: currentBook.id })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) setTransactions([...transactions, data]);
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+    }
+  };
+
+  const deleteTransaction = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      setTransactions(transactions.filter(t => t.id !== id));
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+    }
+  };
+
+  const addCategory = async (category: Omit<CategoryType, 'id' | 'bookId'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert({ ...category, book_id: currentBook.id })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) setCategories([...categories, data]);
+    } catch (error) {
+      console.error('Error adding category:', error);
+    }
+  };
+
+  const addAccount = async (name: string, type: AccountType['type'], balance: number) => {
+    try {
+      const { data, error } = await supabase
+        .from('accounts')
+        .insert({ name, type, balance, book_id: currentBook.id })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) setAccounts([...accounts, data]);
+    } catch (error) {
+      console.error('Error adding account:', error);
+    }
+  };
+
+  const updateAccount = async (id: string, updates: Partial<Omit<AccountType, 'id' | 'bookId'>>) => {
+    try {
+      const { data, error } = await supabase
+        .from('accounts')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setAccounts(accounts.map(account => 
+          account.id === id ? { ...account, ...updates } : account
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating account:', error);
+    }
+  };
+
+  const addMember = async (member: Omit<MemberType, 'id' | 'bookId'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('members')
+        .insert({ ...member, book_id: currentBook.id })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) setMembers([...members, data]);
+    } catch (error) {
+      console.error('Error adding member:', error);
+    }
+  };
+
+  const addBook = async (name: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .insert({ name })
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setBooks([...books, data]);
+        setCurrentBook(data);
+        await initializeDefaultData(data.id);
+      }
+    } catch (error) {
+      console.error('Error adding book:', error);
+    }
+  };
+
+  const value = {
+    transactions,
+    categories,
+    accounts,
+    members,
     books,
     currentBook,
     selectedDate,
-    
     addTransaction,
     deleteTransaction,
     addCategory,
@@ -247,6 +329,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setCurrentBook,
     setSelectedDate,
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <FinanceContext.Provider value={value}>
