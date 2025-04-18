@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Layout from '@/components/Layout';
 import AccountsList from '@/components/AccountsList';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,13 @@ import { useFinance } from '@/context/FinanceContext';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 const Wallet = () => {
-  const { accounts } = useFinance();
+  const { accounts, currentBook, fetchAccountsForBook } = useFinance();
+  
+  useEffect(() => {
+    if (currentBook?.id) {
+      fetchAccountsForBook(currentBook.id);
+    }
+  }, [currentBook?.id, fetchAccountsForBook]);
   
   const totalAssets = accounts
     .filter(account => account.type !== 'Debt')

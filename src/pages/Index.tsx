@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,10 +20,24 @@ import {
 import { toast } from 'sonner';
 
 const Index = () => {
-  const { currentBook, books, addBook, setCurrentBook } = useFinance();
+  const { 
+    currentBook, 
+    books, 
+    addBook, 
+    setCurrentBook, 
+    fetchTransactionsForBook, 
+    fetchCategoriesForBook 
+  } = useFinance();
   const [isEditingBookName, setIsEditingBookName] = useState(false);
   const [bookName, setBookName] = useState(currentBook.name);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (currentBook?.id) {
+      fetchTransactionsForBook(currentBook.id);
+      fetchCategoriesForBook(currentBook.id);
+    }
+  }, [currentBook?.id, fetchTransactionsForBook, fetchCategoriesForBook]);
   
   const handleSaveBookName = () => {
     if (bookName.trim()) {
