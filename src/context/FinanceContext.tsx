@@ -76,11 +76,9 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(true);
 
-  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch books
         const { data: booksData, error: booksError } = await supabase
           .from('books')
           .select('*');
@@ -88,11 +86,15 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         if (booksError) throw booksError;
         
         if (booksData && booksData.length > 0) {
-          setBooks(booksData);
-          setCurrentBook(booksData[0]);
+          const mappedBooks = booksData.map(book => ({
+            id: book.id,
+            name: book.name
+          }));
           
-          // Fetch other data for the current book
-          const bookId = booksData[0].id;
+          setBooks(mappedBooks);
+          setCurrentBook(mappedBooks[0]);
+          
+          const bookId = mappedBooks[0].id;
           
           const [
             { data: categoriesData, error: categoriesError },
@@ -111,12 +113,39 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           if (membersError) throw membersError;
           if (transactionsError) throw transactionsError;
 
-          setCategories(categoriesData || []);
-          setAccounts(accountsData || []);
-          setMembers(membersData || []);
-          setTransactions(transactionsData || []);
+          setCategories(categoriesData?.map(category => ({
+            id: category.id,
+            bookId: category.book_id,
+            name: category.name,
+            icon: category.icon
+          })) || []);
+
+          setAccounts(accountsData?.map(account => ({
+            id: account.id,
+            bookId: account.book_id,
+            name: account.name,
+            type: account.type as AccountType['type'],
+            balance: account.balance
+          })) || []);
+
+          setMembers(membersData?.map(member => ({
+            id: member.id,
+            bookId: member.book_id,
+            name: member.name
+          })) || []);
+
+          setTransactions(transactionsData?.map(transaction => ({
+            id: transaction.id,
+            bookId: transaction.book_id,
+            amount: transaction.amount,
+            type: transaction.type as 'income' | 'expense',
+            categoryId: transaction.category_id,
+            accountId: transaction.account_id,
+            memberId: transaction.member_id,
+            date: transaction.date,
+            description: transaction.description || ''
+          })) || []);
         } else {
-          // Create default book if none exists
           const { data: newBook, error: createBookError } = await supabase
             .from('books')
             .insert({ name: 'Personal Finance' })
@@ -126,8 +155,9 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           if (createBookError) throw createBookError;
           
           if (newBook) {
-            setBooks([newBook]);
-            setCurrentBook(newBook);
+            const mappedBook = { id: newBook.id, name: newBook.name };
+            setBooks([mappedBook]);
+            setCurrentBook(mappedBook);
             await initializeDefaultData(newBook.id);
           }
         }
@@ -141,10 +171,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     fetchData();
   }, []);
 
-  // Initialize default data for a new book
   const initializeDefaultData = async (bookId: string) => {
     try {
-      // Create default categories
       const defaultCategories = [
         { book_id: bookId, name: 'Food', icon: 'utensils' },
         { book_id: bookId, name: 'Transportation', icon: 'car' },
@@ -168,9 +196,15 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         .insert(defaultCategories)
         .select();
 
-      if (categoriesData) setCategories(categoriesData);
+      if (categoriesData) {
+        setCategories(categoriesData.map(category => ({
+          id: category.id,
+          bookId: category.book_id,
+          name: category.name,
+          icon: category.icon
+        })));
+      }
 
-      // Create default accounts
       const defaultAccounts = [
         { book_id: bookId, name: 'Cash', type: 'Cash', balance: 0 },
         { book_id: bookId, name: 'Bank', type: 'Bank', balance: 0 }
@@ -181,33 +215,65 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         .insert(defaultAccounts)
         .select();
 
-      if (accountsData) setAccounts(accountsData);
+      if (accountsData) {
+        setAccounts(accountsData.map(account => ({
+          id: account.id,
+          bookId: account.book_id,
+          name: account.name,
+          type: account.type as AccountType['type'],
+          balance: account.balance
+        })));
+      }
 
-      // Create default member
       const { data: memberData } = await supabase
         .from('members')
         .insert({ book_id: bookId, name: 'John Doe' })
         .select()
         .single();
 
-      if (memberData) setMembers([memberData]);
-
+      if (memberData) {
+        setMembers([{
+          id: memberData.id,
+          bookId: memberData.book_id,
+          name: memberData.name
+        }]);
+      }
     } catch (error) {
       console.error('Error initializing default data:', error);
     }
   };
 
-  // Update functions to use Supabase
   const addTransaction = async (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .insert({ ...transaction, book_id: currentBook.id })
+        .insert({
+          book_id: currentBook.id,
+          amount: transaction.amount,
+          type: transaction.type,
+          category_id: transaction.categoryId,
+          account_id: transaction.accountId,
+          member_id: transaction.memberId,
+          date: transaction.date,
+          description: transaction.description
+        })
         .select()
         .single();
 
       if (error) throw error;
-      if (data) setTransactions([...transactions, data]);
+      if (data) {
+        setTransactions([...transactions, {
+          id: data.id,
+          bookId: data.book_id,
+          amount: data.amount,
+          type: data.type as 'income' | 'expense',
+          categoryId: data.category_id,
+          accountId: data.account_id,
+          memberId: data.member_id,
+          date: data.date,
+          description: data.description || ''
+        }]);
+      }
     } catch (error) {
       console.error('Error adding transaction:', error);
     }
@@ -231,12 +297,23 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       const { data, error } = await supabase
         .from('categories')
-        .insert({ ...category, book_id: currentBook.id })
+        .insert({
+          book_id: currentBook.id,
+          name: category.name,
+          icon: category.icon
+        })
         .select()
         .single();
 
       if (error) throw error;
-      if (data) setCategories([...categories, data]);
+      if (data) {
+        setCategories([...categories, {
+          id: data.id,
+          bookId: data.book_id,
+          name: data.name,
+          icon: data.icon
+        }]);
+      }
     } catch (error) {
       console.error('Error adding category:', error);
     }
@@ -246,12 +323,25 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       const { data, error } = await supabase
         .from('accounts')
-        .insert({ name, type, balance, book_id: currentBook.id })
+        .insert({
+          book_id: currentBook.id,
+          name,
+          type,
+          balance
+        })
         .select()
         .single();
 
       if (error) throw error;
-      if (data) setAccounts([...accounts, data]);
+      if (data) {
+        setAccounts([...accounts, {
+          id: data.id,
+          bookId: data.book_id,
+          name: data.name,
+          type: data.type as AccountType['type'],
+          balance: data.balance
+        }]);
+      }
     } catch (error) {
       console.error('Error adding account:', error);
     }
@@ -281,12 +371,21 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       const { data, error } = await supabase
         .from('members')
-        .insert({ ...member, book_id: currentBook.id })
+        .insert({
+          book_id: currentBook.id,
+          name: member.name
+        })
         .select()
         .single();
 
       if (error) throw error;
-      if (data) setMembers([...members, data]);
+      if (data) {
+        setMembers([...members, {
+          id: data.id,
+          bookId: data.book_id,
+          name: data.name
+        }]);
+      }
     } catch (error) {
       console.error('Error adding member:', error);
     }
