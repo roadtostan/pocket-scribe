@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFinance, TransactionType } from '@/context/FinanceContext';
 import { Button } from "@/components/ui/button";
@@ -51,7 +50,7 @@ const TransactionForm = () => {
       return;
     }
 
-    const newTransaction: Omit<TransactionType, 'id'> = {
+    const newTransaction: Omit<TransactionType, 'id' | 'bookId'> = {
       amount: parsedAmount,
       type: transactionType,
       categoryId,

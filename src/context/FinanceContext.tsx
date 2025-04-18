@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -93,7 +92,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // Initialize default categories for a new book
   const initializeDefaultCategories = (bookId: string) => {
     const defaultCategories: CategoryType[] = [
       { id: uuidv4(), bookId, name: 'Food', icon: 'utensils' },
@@ -115,7 +113,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setCategories(prev => [...prev, ...defaultCategories]);
   };
 
-  // Initialize default accounts for a new book
   const initializeDefaultAccounts = (bookId: string) => {
     const defaultAccounts: AccountType[] = [
       { id: uuidv4(), bookId, name: 'Cash', type: 'Cash', balance: 0 },
@@ -124,7 +121,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setAccounts(prev => [...prev, ...defaultAccounts]);
   };
 
-  // Initialize default member for a new book
   const initializeDefaultMember = (bookId: string) => {
     const defaultMember: MemberType = {
       id: uuidv4(),
@@ -158,7 +154,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     localStorage.setItem('currentBook', JSON.stringify(currentBook));
   }, [currentBook]);
 
-  // Filter data based on current book
   const filteredTransactions = transactions.filter(t => t.bookId === currentBook.id);
   const filteredCategories = categories.filter(c => c.bookId === currentBook.id);
   const filteredAccounts = accounts.filter(a => a.bookId === currentBook.id);
@@ -220,13 +215,11 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     setBooks([...books, newBook]);
     setCurrentBook(newBook);
     
-    // Initialize default data for the new book
     initializeDefaultCategories(newBook.id);
     initializeDefaultAccounts(newBook.id);
     initializeDefaultMember(newBook.id);
   };
 
-  // Initialize default data for the first book if it doesn't exist
   useEffect(() => {
     if (categories.length === 0 || accounts.length === 0 || members.length === 0) {
       initializeDefaultCategories(currentBook.id);
