@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useFinance, TransactionType } from '@/context/FinanceContext';
 import { Button } from "@/components/ui/button";
@@ -218,28 +219,30 @@ const TransactionForm = () => {
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <div className="flex gap-2 items-center">
-              <Select value={categoryId} onValueChange={setCategoryId} className="flex-1">
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories
-                    .filter(cat => {
-                      if (transactionType === 'income') {
-                        return ['Salary', 'Investment', 'Bonus'].includes(cat.name);
-                      }
-                      return !['Salary', 'Investment', 'Bonus'].includes(cat.name);
-                    })
-                    .map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center gap-2">
-                          <CategoryIcon iconName={category.icon} />
-                          {category.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <div className="flex-1">
+                <Select value={categoryId} onValueChange={setCategoryId}>
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories
+                      .filter(cat => {
+                        if (transactionType === 'income') {
+                          return ['Salary', 'Investment', 'Bonus'].includes(cat.name);
+                        }
+                        return !['Salary', 'Investment', 'Bonus'].includes(cat.name);
+                      })
+                      .map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center gap-2">
+                            <CategoryIcon iconName={category.icon} />
+                            {category.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <AddCategoryDialog />
             </div>
           </div>
@@ -263,18 +266,20 @@ const TransactionForm = () => {
           <div className="space-y-2">
             <Label htmlFor="member">Member</Label>
             <div className="flex gap-2 items-center">
-              <Select value={memberId} onValueChange={setMemberId} className="flex-1">
-                <SelectTrigger id="member">
-                  <SelectValue placeholder="Select member" />
-                </SelectTrigger>
-                <SelectContent>
-                  {members.map((member) => (
-                    <SelectItem key={member.id} value={member.id}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex-1">
+                <Select value={memberId} onValueChange={setMemberId}>
+                  <SelectTrigger id="member">
+                    <SelectValue placeholder="Select member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {members.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <AddMemberDialog />
             </div>
           </div>
