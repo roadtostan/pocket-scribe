@@ -61,7 +61,8 @@ const TransactionForm = () => {
         amount: parsedAmount,
         memberId,
         date: format(date, 'yyyy-MM-dd'),
-        description
+        description,
+        type: 'transfer'
       });
 
       toast.success('Transfer completed successfully');

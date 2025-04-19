@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
@@ -14,9 +15,20 @@ export type TransactionType = {
   description: string;
 };
 
-export type CategoryType = {
+export type TransferTransactionType = {
   id: string;
   bookId: string;
+  fromAccountId: string;
+  toAccountId: string;
+  amount: number;
+  date: string;
+  description: string;
+  memberId: string;
+  type: 'transfer';
+};
+
+export type CategoryType = {
+  id: string;
   name: string;
   icon: string;
   type: 'income' | 'expense' | 'both';
@@ -52,7 +64,7 @@ type FinanceContextType = {
   
   addTransaction: (transaction: Omit<TransactionType, 'id' | 'bookId'>) => void;
   deleteTransaction: (id: string) => void;
-  addCategory: (category: Omit<CategoryType, 'id' | 'bookId'>) => void;
+  addCategory: (category: Omit<CategoryType, 'id'>) => void;
   addAccount: (name: string, type: AccountType['type'], balance: number) => void;
   updateAccount: (id: string, updates: Partial<Omit<AccountType, 'id' | 'bookId'>>) => void;
   addMember: (member: Omit<MemberType, 'id' | 'bookId'>) => void;
@@ -71,18 +83,6 @@ const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 interface FinanceProviderProps {
   children: React.ReactNode;
 }
-
-export type TransferTransactionType = {
-  id: string;
-  bookId: string;
-  fromAccountId: string;
-  toAccountId: string;
-  amount: number;
-  date: string;
-  description: string;
-  memberId: string;
-  type: 'transfer';
-};
 
 export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) => {
   const [transactions, setTransactions] = useState<(TransactionType | TransferTransactionType)[]>([]);
@@ -198,14 +198,12 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
-        .select('*')
-        .eq('book_id', bookId);
+        .select('*');
 
       if (categoriesError) throw categoriesError;
 
       setCategories(categoriesData?.map(category => ({
         id: category.id,
-        bookId: category.book_id,
         name: category.name,
         icon: category.icon,
         type: category.type as 'income' | 'expense' | 'both'
@@ -258,21 +256,21 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const initializeDefaultData = async (bookId: string) => {
     try {
       const defaultCategories = [
-        { book_id: bookId, name: 'Food', icon: 'utensils', type: 'expense' },
-        { book_id: bookId, name: 'Transportation', icon: 'car', type: 'expense' },
-        { book_id: bookId, name: 'Shopping', icon: 'shopping-cart', type: 'expense' },
-        { book_id: bookId, name: 'Housing', icon: 'home', type: 'expense' },
-        { book_id: bookId, name: 'Entertainment', icon: 'smile', type: 'expense' },
-        { book_id: bookId, name: 'Utilities', icon: 'wifi', type: 'expense' },
-        { book_id: bookId, name: 'Gifts', icon: 'gift', type: 'expense' },
-        { book_id: bookId, name: 'Health', icon: 'heart', type: 'expense' },
-        { book_id: bookId, name: 'Clothing', icon: 'shirt', type: 'expense' },
-        { book_id: bookId, name: 'Activities', icon: 'activity', type: 'expense' },
-        { book_id: bookId, name: 'Travel', icon: 'landmark', type: 'expense' },
-        { book_id: bookId, name: 'Others', icon: 'folder', type: 'expense' },
-        { book_id: bookId, name: 'Salary', icon: 'briefcase', type: 'income' },
-        { book_id: bookId, name: 'Investment', icon: 'trending-up', type: 'income' },
-        { book_id: bookId, name: 'Bonus', icon: 'award', type: 'income' }
+        { name: 'Food', icon: 'utensils', type: 'expense' },
+        { name: 'Transportation', icon: 'car', type: 'expense' },
+        { name: 'Shopping', icon: 'shopping-cart', type: 'expense' },
+        { name: 'Housing', icon: 'home', type: 'expense' },
+        { name: 'Entertainment', icon: 'smile', type: 'expense' },
+        { name: 'Utilities', icon: 'wifi', type: 'expense' },
+        { name: 'Gifts', icon: 'gift', type: 'expense' },
+        { name: 'Health', icon: 'heart', type: 'expense' },
+        { name: 'Clothing', icon: 'shirt', type: 'expense' },
+        { name: 'Activities', icon: 'activity', type: 'expense' },
+        { name: 'Travel', icon: 'landmark', type: 'expense' },
+        { name: 'Others', icon: 'folder', type: 'expense' },
+        { name: 'Salary', icon: 'briefcase', type: 'income' },
+        { name: 'Investment', icon: 'trending-up', type: 'income' },
+        { name: 'Bonus', icon: 'award', type: 'income' }
       ];
 
       const { data: categoriesData } = await supabase
@@ -283,7 +281,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       if (categoriesData) {
         setCategories(categoriesData.map(category => ({
           id: category.id,
-          bookId: category.book_id,
           name: category.name,
           icon: category.icon,
           type: category.type as 'income' | 'expense' | 'both'
@@ -449,7 +446,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
       if (updateToError) throw updateToError;
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('transfer_transactions')
         .insert({
           book_id: currentBook.id,
@@ -459,11 +456,27 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           date: transfer.date,
           description: transfer.description,
           member_id: transfer.memberId
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      await fetchAccountsForBook(currentBook.id);
+      if (data) {
+        setTransactions([...transactions, {
+          id: data.id,
+          bookId: data.book_id,
+          amount: data.amount,
+          type: 'transfer' as const,
+          fromAccountId: data.from_account_id,
+          toAccountId: data.to_account_id,
+          memberId: data.member_id,
+          date: data.date,
+          description: data.description || ''
+        }]);
+
+        await fetchAccountsForBook(currentBook.id);
+      }
     } catch (error) {
       console.error('Error adding transfer:', error);
     }
@@ -547,12 +560,11 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     }
   };
 
-  const addCategory = async (category: Omit<CategoryType, 'id' | 'bookId'>) => {
+  const addCategory = async (category: Omit<CategoryType, 'id'>) => {
     try {
       const { data, error } = await supabase
         .from('categories')
         .insert({
-          book_id: currentBook.id,
           name: category.name,
           icon: category.icon,
           type: category.type
@@ -564,7 +576,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       if (data) {
         setCategories([...categories, {
           id: data.id,
-          bookId: data.book_id,
           name: data.name,
           icon: data.icon,
           type: data.type as 'income' | 'expense' | 'both'

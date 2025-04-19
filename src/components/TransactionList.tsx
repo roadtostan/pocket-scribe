@@ -1,64 +1,11 @@
 
 import React from 'react';
-import { useFinance, TransactionType } from '@/context/FinanceContext';
+import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, parseISO, isSameMonth, isSameYear } from 'date-fns';
 import { id } from 'date-fns/locale';
-import CategoryIcon from './CategoryIcon';
-import { cn } from '@/lib/utils';
-import { Trash2 } from 'lucide-react';
-import { Button } from './ui/button';
 import { formatCurrency } from '@/lib/formatCurrency';
-
-interface TransactionItemProps {
-  transaction: TransactionType;
-  onDelete: (id: string) => void;
-}
-
-const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
-  const { categories, accounts, members } = useFinance();
-  
-  const category = categories.find(c => c.id === transaction.categoryId);
-  const account = accounts.find(a => a.id === transaction.accountId);
-  const member = members.find(m => m.id === transaction.memberId);
-
-  return (
-    <div className="flex items-center justify-between p-3 border-b last:border-b-0">
-      <div className="flex items-center gap-3">
-        <div 
-          className={cn(
-            "flex items-center justify-center w-10 h-10 rounded-full",
-            transaction.type === 'income' ? 'bg-income/20 text-income' : 'bg-expense/20 text-expense'
-          )}
-        >
-          {category && <CategoryIcon iconName={category.icon} />}
-        </div>
-        <div>
-          <div className="font-medium">{category?.name}</div>
-          <div className="text-sm text-gray-500">
-            {transaction.description} • {account?.name} • {member?.name}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className={cn(
-          "font-medium",
-          transaction.type === 'income' ? 'text-income' : 'text-expense'
-        )}>
-          {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
-        </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => onDelete(transaction.id)}
-          className="text-gray-400 hover:text-expense"
-        >
-          <Trash2 size={16} />
-        </Button>
-      </div>
-    </div>
-  );
-};
+import TransactionItem from './TransactionItem';
 
 const TransactionList = () => {
   const { transactions, deleteTransaction, selectedDate } = useFinance();
@@ -66,7 +13,8 @@ const TransactionList = () => {
   // Filter transactions for the selected month and year
   const filteredTransactions = transactions.filter(t => {
     const transactionDate = parseISO(t.date);
-    return isSameMonth(transactionDate, selectedDate) && isSameYear(transactionDate, selectedDate);
+    return isSameMonth(transactionDate, selectedDate) && 
+           isSameYear(transactionDate, selectedDate);
   });
   
   // Group transactions by date
@@ -77,16 +25,12 @@ const TransactionList = () => {
     }
     groups[date].push(transaction);
     return groups;
-  }, {} as Record<string, TransactionType[]>);
+  }, {} as Record<string, typeof transactions>);
 
   // Sort dates in descending order
   const sortedDates = Object.keys(transactionsByDate).sort((a, b) => {
     return new Date(b).getTime() - new Date(a).getTime();
   });
-
-  const handleDelete = (id: string) => {
-    deleteTransaction(id);
-  };
 
   return (
     <Card className="w-full animate-fade-in">
@@ -114,10 +58,10 @@ const TransactionList = () => {
                 {dailyTransactions
                   .sort((a, b) => Number(b.id) - Number(a.id))
                   .map(transaction => (
-                    <TransactionItem 
+                    <TransactionItem
                       key={transaction.id} 
-                      transaction={transaction} 
-                      onDelete={handleDelete}
+                      transaction={transaction}
+                      onDelete={deleteTransaction}
                     />
                   ))
                 }

@@ -23,10 +23,9 @@ const CalendarView = () => {
   const calculateDayTotal = (date: Date) => {
     const dayTransactions = getDayTransactions(date);
     return dayTransactions.reduce((total, t) => {
-      if ('type' in t) {
-        if (t.type === 'income') return total + t.amount;
-        if (t.type === 'expense') return total - t.amount;
-      }
+      if (t.type === 'income') return total + t.amount;
+      if (t.type === 'expense') return total - t.amount;
+      // For transfers, don't add to the daily total as they're just movements between accounts
       return total;
     }, 0);
   };

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useFinance } from '@/context/FinanceContext';
+import { useFinance, TransactionType, TransferTransactionType } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
@@ -18,11 +18,15 @@ const ChartAnalysis = () => {
   
   // Filter transactions by type and selected month/year
   const filteredTransactions = transactions.filter(t => {
+    if (t.type !== transactionType) return false;
+    
+    // Transfer transactions don't have category or account IDs
+    if (t.type === 'transfer') return false;
+    
     const transactionDate = parseISO(t.date);
-    return t.type === transactionType && 
-           isSameMonth(transactionDate, selectedDate) && 
+    return isSameMonth(transactionDate, selectedDate) && 
            isSameYear(transactionDate, selectedDate);
-  });
+  }) as TransactionType[]; // Cast to TransactionType since we filtered out transfers
   
   // Group and sum transactions
   const groupedData = filteredTransactions.reduce((result, transaction) => {

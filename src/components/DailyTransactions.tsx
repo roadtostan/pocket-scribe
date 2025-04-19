@@ -12,7 +12,7 @@ import TransactionItem from './TransactionItem';
 const DailyTransactions = () => {
   const { date } = useParams();
   const navigate = useNavigate();
-  const { transactions } = useFinance();
+  const { transactions, deleteTransaction } = useFinance();
   
   const dailyTransactions = transactions.filter(t => 
     date && isSameDay(parseISO(t.date), parseISO(date))
@@ -49,7 +49,8 @@ const DailyTransactions = () => {
           {dailyTransactions.map(transaction => (
             <TransactionItem 
               key={transaction.id} 
-              transaction={transaction} 
+              transaction={transaction}
+              onDelete={deleteTransaction}
             />
           ))}
         </CardContent>
