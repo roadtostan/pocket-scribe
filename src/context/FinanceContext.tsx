@@ -19,6 +19,7 @@ export type CategoryType = {
   bookId: string;
   name: string;
   icon: string;
+  type: 'income' | 'expense' | 'both';
 };
 
 export type AccountType = {
@@ -183,7 +184,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         id: category.id,
         bookId: category.book_id,
         name: category.name,
-        icon: category.icon
+        icon: category.icon,
+        type: category.type as 'income' | 'expense' | 'both'
       })) || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -233,21 +235,21 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const initializeDefaultData = async (bookId: string) => {
     try {
       const defaultCategories = [
-        { book_id: bookId, name: 'Food', icon: 'utensils' },
-        { book_id: bookId, name: 'Transportation', icon: 'car' },
-        { book_id: bookId, name: 'Shopping', icon: 'shopping-cart' },
-        { book_id: bookId, name: 'Housing', icon: 'home' },
-        { book_id: bookId, name: 'Entertainment', icon: 'smile' },
-        { book_id: bookId, name: 'Utilities', icon: 'wifi' },
-        { book_id: bookId, name: 'Gifts', icon: 'gift' },
-        { book_id: bookId, name: 'Health', icon: 'heart' },
-        { book_id: bookId, name: 'Clothing', icon: 'shirt' },
-        { book_id: bookId, name: 'Activities', icon: 'activity' },
-        { book_id: bookId, name: 'Travel', icon: 'landmark' },
-        { book_id: bookId, name: 'Others', icon: 'folder' },
-        { book_id: bookId, name: 'Salary', icon: 'briefcase' },
-        { book_id: bookId, name: 'Investment', icon: 'trending-up' },
-        { book_id: bookId, name: 'Bonus', icon: 'award' }
+        { book_id: bookId, name: 'Food', icon: 'utensils', type: 'expense' },
+        { book_id: bookId, name: 'Transportation', icon: 'car', type: 'expense' },
+        { book_id: bookId, name: 'Shopping', icon: 'shopping-cart', type: 'expense' },
+        { book_id: bookId, name: 'Housing', icon: 'home', type: 'expense' },
+        { book_id: bookId, name: 'Entertainment', icon: 'smile', type: 'expense' },
+        { book_id: bookId, name: 'Utilities', icon: 'wifi', type: 'expense' },
+        { book_id: bookId, name: 'Gifts', icon: 'gift', type: 'expense' },
+        { book_id: bookId, name: 'Health', icon: 'heart', type: 'expense' },
+        { book_id: bookId, name: 'Clothing', icon: 'shirt', type: 'expense' },
+        { book_id: bookId, name: 'Activities', icon: 'activity', type: 'expense' },
+        { book_id: bookId, name: 'Travel', icon: 'landmark', type: 'expense' },
+        { book_id: bookId, name: 'Others', icon: 'folder', type: 'expense' },
+        { book_id: bookId, name: 'Salary', icon: 'briefcase', type: 'income' },
+        { book_id: bookId, name: 'Investment', icon: 'trending-up', type: 'income' },
+        { book_id: bookId, name: 'Bonus', icon: 'award', type: 'income' }
       ];
 
       const { data: categoriesData } = await supabase
@@ -260,7 +262,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           id: category.id,
           bookId: category.book_id,
           name: category.name,
-          icon: category.icon
+          icon: category.icon,
+          type: category.type as 'income' | 'expense' | 'both'
         })));
       }
 
@@ -315,16 +318,33 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const addTransaction = async (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
     try {
       // First, update the account balance
-      const { error: accountError } = await supabase
-        .from('accounts')
-        .update({
-          balance: transaction.type === 'income' 
-            ? supabase.sql`balance + ${transaction.amount}`
-            : supabase.sql`balance - ${transaction.amount}`
-        })
-        .eq('id', transaction.accountId);
+      if (transaction.type === 'income') {
+        // For income, add to balance
+        const { error: accountError } = await supabase
+          .from('accounts')
+          .update({
+            balance: supabase.rpc('increment_balance', { 
+              account_id_param: transaction.accountId, 
+              amount_param: transaction.amount 
+            })
+          })
+          .eq('id', transaction.accountId);
 
-      if (accountError) throw accountError;
+        if (accountError) throw accountError;
+      } else {
+        // For expense, subtract from balance
+        const { error: accountError } = await supabase
+          .from('accounts')
+          .update({
+            balance: supabase.rpc('decrement_balance', { 
+              account_id_param: transaction.accountId, 
+              amount_param: transaction.amount 
+            })
+          })
+          .eq('id', transaction.accountId);
+
+        if (accountError) throw accountError;
+      }
 
       // Then create the transaction
       const { data, error } = await supabase
@@ -370,7 +390,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       const { error: fromAccountError } = await supabase
         .from('accounts')
         .update({
-          balance: supabase.sql`balance - ${transfer.amount}`
+          balance: supabase.rpc('decrement_balance', { 
+            account_id_param: transfer.fromAccountId, 
+            amount_param: transfer.amount 
+          })
         })
         .eq('id', transfer.fromAccountId);
 
@@ -380,7 +403,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       const { error: toAccountError } = await supabase
         .from('accounts')
         .update({
-          balance: supabase.sql`balance + ${transfer.amount}`
+          balance: supabase.rpc('increment_balance', { 
+            account_id_param: transfer.toAccountId, 
+            amount_param: transfer.amount 
+          })
         })
         .eq('id', transfer.toAccountId);
 
@@ -431,7 +457,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         .insert({
           book_id: currentBook.id,
           name: category.name,
-          icon: category.icon
+          icon: category.icon,
+          type: category.type
         })
         .select()
         .single();
@@ -442,7 +469,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           id: data.id,
           bookId: data.book_id,
           name: data.name,
-          icon: data.icon
+          icon: data.icon,
+          type: data.type as 'income' | 'expense' | 'both'
         }]);
       }
     } catch (error) {

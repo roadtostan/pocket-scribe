@@ -104,7 +104,7 @@ const TransactionForm = () => {
     if (transactionType === 'income') {
       return cat.type === 'income' || cat.type === 'both';
     }
-    return (cat.type === 'expense' || cat.type === 'both') && !['Salary', 'Investment', 'Bonus'].includes(cat.name);
+    return cat.type === 'expense' || cat.type === 'both';
   });
 
   const handleCalcInput = (value: string) => {
