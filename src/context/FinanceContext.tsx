@@ -62,6 +62,7 @@ type FinanceContextType = {
   fetchCategoriesForBook: (bookId: string) => void;
   fetchAccountsForBook: (bookId: string) => void;
   fetchMembersForBook: (bookId: string) => void;
+  addTransferTransaction: (transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => void;
 };
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -69,6 +70,18 @@ const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 interface FinanceProviderProps {
   children: React.ReactNode;
 }
+
+// Add TransferTransactionType interface
+export type TransferTransactionType = {
+  id: string;
+  bookId: string;
+  fromAccountId: string;
+  toAccountId: string;
+  amount: number;
+  date: string;
+  description: string;
+  memberId: string;
+};
 
 export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) => {
   const [transactions, setTransactions] = useState<TransactionType[]>([]);
@@ -301,6 +314,19 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const addTransaction = async (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
     try {
+      // First, update the account balance
+      const { error: accountError } = await supabase
+        .from('accounts')
+        .update({
+          balance: transaction.type === 'income' 
+            ? supabase.sql`balance + ${transaction.amount}`
+            : supabase.sql`balance - ${transaction.amount}`
+        })
+        .eq('id', transaction.accountId);
+
+      if (accountError) throw accountError;
+
+      // Then create the transaction
       const { data, error } = await supabase
         .from('transactions')
         .insert({
@@ -329,9 +355,58 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           date: data.date,
           description: data.description || ''
         }]);
+
+        // Refresh accounts to get updated balance
+        await fetchAccountsForBook(currentBook.id);
       }
     } catch (error) {
       console.error('Error adding transaction:', error);
+    }
+  };
+
+  const addTransferTransaction = async (transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => {
+    try {
+      // First, subtract from source account
+      const { error: fromAccountError } = await supabase
+        .from('accounts')
+        .update({
+          balance: supabase.sql`balance - ${transfer.amount}`
+        })
+        .eq('id', transfer.fromAccountId);
+
+      if (fromAccountError) throw fromAccountError;
+
+      // Then, add to destination account
+      const { error: toAccountError } = await supabase
+        .from('accounts')
+        .update({
+          balance: supabase.sql`balance + ${transfer.amount}`
+        })
+        .eq('id', transfer.toAccountId);
+
+      if (toAccountError) throw toAccountError;
+
+      // Finally, create the transfer transaction
+      const { data, error } = await supabase
+        .from('transfer_transactions')
+        .insert({
+          book_id: currentBook.id,
+          from_account_id: transfer.fromAccountId,
+          to_account_id: transfer.toAccountId,
+          amount: transfer.amount,
+          date: transfer.date,
+          description: transfer.description,
+          member_id: transfer.memberId
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Refresh accounts to get updated balances
+      await fetchAccountsForBook(currentBook.id);
+    } catch (error) {
+      console.error('Error adding transfer:', error);
     }
   };
 
@@ -487,6 +562,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     fetchCategoriesForBook,
     fetchAccountsForBook,
     fetchMembersForBook,
+    addTransferTransaction,
   };
 
   if (loading) {

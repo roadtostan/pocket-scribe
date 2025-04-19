@@ -69,6 +69,7 @@ export type Database = {
           icon: string
           id: string
           name: string
+          type: string
         }
         Insert: {
           book_id: string
@@ -76,6 +77,7 @@ export type Database = {
           icon: string
           id?: string
           name: string
+          type?: string
         }
         Update: {
           book_id?: string
@@ -83,6 +85,7 @@ export type Database = {
           icon?: string
           id?: string
           name?: string
+          type?: string
         }
         Relationships: [
           {
@@ -187,6 +190,71 @@ export type Database = {
             columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_transactions: {
+        Row: {
+          amount: number
+          book_id: string
+          created_at: string
+          date: string
+          description: string | null
+          from_account_id: string
+          id: string
+          member_id: string
+          to_account_id: string
+        }
+        Insert: {
+          amount: number
+          book_id: string
+          created_at?: string
+          date: string
+          description?: string | null
+          from_account_id: string
+          id?: string
+          member_id: string
+          to_account_id: string
+        }
+        Update: {
+          amount?: number
+          book_id?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          from_account_id?: string
+          id?: string
+          member_id?: string
+          to_account_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_transactions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_transactions_from_account_id_fkey"
+            columns: ["from_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_transactions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_transactions_to_account_id_fkey"
+            columns: ["to_account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]

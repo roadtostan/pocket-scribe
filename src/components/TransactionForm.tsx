@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFinance, TransactionType } from '@/context/FinanceContext';
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CategoryIcon from './CategoryIcon';
@@ -28,12 +27,13 @@ import AddCategoryDialog from './AddCategoryDialog';
 import AddMemberDialog from './AddMemberDialog';
 
 const TransactionForm = () => {
-  const { categories, members, accounts, addTransaction } = useFinance();
-  const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
+  const { categories, members, accounts, addTransaction, addTransferTransaction } = useFinance();
+  const [transactionType, setTransactionType] = useState<'income' | 'expense' | 'transfer'>('expense');
   const [date, setDate] = useState<Date>(new Date());
   const [amount, setAmount] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
   const [accountId, setAccountId] = useState<string>('');
+  const [toAccountId, setToAccountId] = useState<string>('');
   const [memberId, setMemberId] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [calculatorExpression, setCalculatorExpression] = useState<string>('');
@@ -42,37 +42,70 @@ const TransactionForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!amount || !categoryId || !accountId || !memberId) {
-      toast.error('Please fill all required fields');
-      return;
+    if (transactionType === 'transfer') {
+      if (!amount || !accountId || !toAccountId || !memberId || accountId === toAccountId) {
+        toast.error('Please fill all required fields and select different accounts');
+        return;
+      }
+
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        toast.error('Please enter a valid amount');
+        return;
+      }
+
+      addTransferTransaction({
+        fromAccountId: accountId,
+        toAccountId,
+        amount: parsedAmount,
+        memberId,
+        date: format(date, 'yyyy-MM-dd'),
+        description
+      });
+
+      toast.success('Transfer completed successfully');
+    } else {
+      if (!amount || !categoryId || !accountId || !memberId) {
+        toast.error('Please fill all required fields');
+        return;
+      }
+
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        toast.error('Please enter a valid amount');
+        return;
+      }
+
+      const newTransaction: Omit<TransactionType, 'id' | 'bookId'> = {
+        amount: parsedAmount,
+        type: transactionType === 'income' ? 'income' : 'expense',
+        categoryId,
+        accountId,
+        memberId,
+        date: format(date, 'yyyy-MM-dd'),
+        description
+      };
+
+      addTransaction(newTransaction);
     }
-
-    const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
-
-    const newTransaction: Omit<TransactionType, 'id' | 'bookId'> = {
-      amount: parsedAmount,
-      type: transactionType,
-      categoryId,
-      accountId,
-      memberId,
-      date: format(date, 'yyyy-MM-dd'),
-      description
-    };
-
-    addTransaction(newTransaction);
     
     // Reset form
     setAmount('');
     setDescription('');
     setShowCalculator(false);
     setCalculatorExpression('');
+    setCategoryId('');
+    setToAccountId('');
     
-    toast.success(`${transactionType === 'income' ? 'Income' : 'Expense'} added successfully`);
+    toast.success(`${transactionType === 'income' ? 'Income' : transactionType === 'expense' ? 'Expense' : 'Transfer'} added successfully`);
   };
+
+  const filteredCategories = categories.filter(cat => {
+    if (transactionType === 'income') {
+      return cat.type === 'income' || cat.type === 'both';
+    }
+    return (cat.type === 'expense' || cat.type === 'both') && !['Salary', 'Investment', 'Bonus'].includes(cat.name);
+  });
 
   const handleCalcInput = (value: string) => {
     setCalculatorExpression(prev => prev + value);
@@ -105,7 +138,7 @@ const TransactionForm = () => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="expense" className="mb-6">
-          <TabsList className="grid grid-cols-2">
+          <TabsList className="grid grid-cols-3">
             <TabsTrigger 
               value="expense" 
               onClick={() => setTransactionType('expense')}
@@ -119,6 +152,14 @@ const TransactionForm = () => {
               className={transactionType === 'income' ? 'bg-income text-white' : ''}
             >
               Income
+            </TabsTrigger>
+            <TabsTrigger 
+              value="transfer" 
+              onClick={() => setTransactionType('transfer')}
+              className={transactionType === 'transfer' ? 'bg-gray-800 text-white' : ''}
+            >
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              Transfer
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -216,23 +257,17 @@ const TransactionForm = () => {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <div className="flex gap-2 items-center">
-              <div className="flex-1">
-                <Select value={categoryId} onValueChange={setCategoryId}>
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories
-                      .filter(cat => {
-                        if (transactionType === 'income') {
-                          return ['Salary', 'Investment', 'Bonus'].includes(cat.name);
-                        }
-                        return !['Salary', 'Investment', 'Bonus'].includes(cat.name);
-                      })
-                      .map((category) => (
+          {transactionType !== 'transfer' && (
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <div className="flex gap-2 items-center">
+                <div className="flex-1">
+                  <Select value={categoryId} onValueChange={setCategoryId}>
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredCategories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           <div className="flex items-center gap-2">
                             <CategoryIcon iconName={category.icon} />
@@ -240,15 +275,16 @@ const TransactionForm = () => {
                           </div>
                         </SelectItem>
                       ))}
-                  </SelectContent>
-                </Select>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <AddCategoryDialog transactionType={transactionType} />
               </div>
-              <AddCategoryDialog />
             </div>
-          </div>
+          )}
 
           <div className="space-y-2">
-            <Label htmlFor="account">Account</Label>
+            <Label htmlFor="account">{transactionType === 'transfer' ? 'From Account' : 'Account'}</Label>
             <Select value={accountId} onValueChange={setAccountId}>
               <SelectTrigger id="account">
                 <SelectValue placeholder="Select account" />
@@ -262,6 +298,26 @@ const TransactionForm = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {transactionType === 'transfer' && (
+            <div className="space-y-2">
+              <Label htmlFor="toAccount">To Account</Label>
+              <Select value={toAccountId} onValueChange={setToAccountId}>
+                <SelectTrigger id="toAccount">
+                  <SelectValue placeholder="Select destination account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts
+                    .filter(account => account.id !== accountId)
+                    .map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name} ({account.type})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="member">Member</Label>
@@ -322,9 +378,13 @@ const TransactionForm = () => {
 
           <Button 
             type="submit" 
-            className={transactionType === 'income' ? 'bg-income hover:bg-income/90' : 'bg-expense hover:bg-expense/90'}
+            className={cn(
+              transactionType === 'income' ? 'bg-income hover:bg-income/90' : 
+              transactionType === 'expense' ? 'bg-expense hover:bg-expense/90' :
+              'bg-gray-800 hover:bg-gray-700'
+            )}
           >
-            Add {transactionType === 'income' ? 'Income' : 'Expense'}
+            Add {transactionType === 'income' ? 'Income' : transactionType === 'expense' ? 'Expense' : 'Transfer'}
           </Button>
         </form>
       </CardContent>

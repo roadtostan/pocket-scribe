@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -15,24 +14,35 @@ const ICONS = [
   'briefcase', 'trending-up', 'award'
 ];
 
-const AddCategoryDialog = () => {
+interface AddCategoryDialogProps {
+  transactionType?: 'income' | 'expense' | 'transfer';
+}
+
+const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({ transactionType = 'expense' }) => {
   const [name, setName] = React.useState('');
-  const [icon, setIcon] = React.useState('');
+  const [selectedIcon, setSelectedIcon] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const { addCategory } = useFinance();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !icon) {
-      toast.error('Please fill all fields');
+    
+    if (!name || !selectedIcon) {
+      toast.error('Please fill all required fields');
       return;
     }
-
-    addCategory({ name, icon });
-    toast.success('Category added successfully');
+    
+    addCategory({
+      name,
+      icon: selectedIcon,
+      type: transactionType === 'income' ? 'income' : 'expense'
+    });
+    
     setName('');
-    setIcon('');
+    setSelectedIcon('');
     setOpen(false);
+    
+    toast.success('Category added successfully');
   };
 
   return (
@@ -59,7 +69,7 @@ const AddCategoryDialog = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="icon">Icon</Label>
-            <Select value={icon} onValueChange={setIcon}>
+            <Select value={selectedIcon} onValueChange={setSelectedIcon}>
               <SelectTrigger id="icon">
                 <SelectValue placeholder="Select an icon" />
               </SelectTrigger>
