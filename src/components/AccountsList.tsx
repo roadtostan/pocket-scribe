@@ -114,7 +114,7 @@ const AccountsList = () => {
           <CardTitle>Total Balance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="bg-green-50 p-4 rounded-lg">
               <div className="text-sm text-gray-500 mb-1">Assets</div>
               <div className="text-xl font-semibold text-green-600">

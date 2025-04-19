@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { CalendarIcon, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -173,7 +174,7 @@ const TransactionForm = () => {
                 name="amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
+                placeholder="0"
                 className="flex-1"
               />
               <Button 
@@ -350,7 +351,7 @@ const TransactionForm = () => {
                   className="w-full justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  {date ? format(date, "eeee, dd MMMM yyyy", { locale: id }) : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -359,6 +360,7 @@ const TransactionForm = () => {
                   selected={date}
                   onSelect={(newDate) => newDate && setDate(newDate)}
                   initialFocus
+                  locale={id}
                   className="p-3 pointer-events-auto"
                 />
               </PopoverContent>

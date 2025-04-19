@@ -92,10 +92,13 @@ const ChartAnalysis = () => {
   return (
     <Card className="w-full animate-fade-in">
       <CardHeader>
-        <CardTitle className="flex justify-between items-center">
+        <CardTitle className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
           <span>Transaction Analysis</span>
-          <Select value={groupBy} onValueChange={(value) => setGroupBy(value as GroupBy)}>
-            <SelectTrigger className="w-[130px]">
+          <Select
+            value={groupBy}
+            onValueChange={(value) => setGroupBy(value as GroupBy)}
+          >
+            <SelectTrigger className="w-[135px] md:justify-self-end">
               <SelectValue placeholder="Group by" />
             </SelectTrigger>
             <SelectContent>

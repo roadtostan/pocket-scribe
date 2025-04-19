@@ -3,6 +3,7 @@ import React from 'react';
 import { useFinance, TransactionType } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, parseISO, isSameMonth, isSameYear } from 'date-fns';
+import { id } from 'date-fns/locale';
 import CategoryIcon from './CategoryIcon';
 import { cn } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
@@ -108,7 +109,7 @@ const TransactionList = () => {
             return (
               <div key={date}>
                 <div className="px-4 py-2 bg-gray-50 font-medium">
-                  {format(parseISO(date), 'EEEE, MMMM d, yyyy')}
+                  {format(parseISO(date), 'eeee, dd MMMM yyyy', { locale: id })}
                 </div>
                 {dailyTransactions
                   .sort((a, b) => Number(b.id) - Number(a.id))

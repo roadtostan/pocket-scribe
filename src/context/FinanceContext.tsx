@@ -283,12 +283,12 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: account.name,
           type: account.type as AccountType['type'],
           balance: account.balance
-        }));
+        })));
       }
 
       const { data: memberData } = await supabase
         .from('members')
-        .insert({ book_id: bookId, name: 'John Doe' })
+        .insert({ book_id: bookId, name: 'Wanda sayang' })
         .select()
         .single();
 

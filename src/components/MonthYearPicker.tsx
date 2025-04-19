@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useFinance } from '@/context/FinanceContext';
 import { format, addMonths, subMonths } from 'date-fns';
+import { id } from "date-fns/locale";
 
 const MonthYearPicker = () => {
   const { selectedDate, setSelectedDate } = useFinance();
@@ -31,7 +32,7 @@ const MonthYearPicker = () => {
         </Button>
         
         <div className="font-medium text-center">
-          {format(selectedDate, 'MMMM yyyy')}
+          {format(selectedDate, 'MMMM yyyy', { locale: id })}
         </div>
         
         <Button

@@ -61,7 +61,7 @@ const Index = () => {
         <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white mb-6">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <BookOpen size={24} />
                 {isEditingBookName ? (
                   <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ const Index = () => {
                   <div className="flex items-center gap-4">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-white/10">
+                        <Button variant="ghost" className="flex items-center gap-1 text-white hover:bg-white/10">
                           <h1 className="text-xl font-bold">{currentBook.name}</h1>
                           <ChevronDown size={16} />
                         </Button>
