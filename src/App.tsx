@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import Wallet from "./pages/Wallet";
 import Analysis from "./pages/Analysis";
 import NotFound from "./pages/NotFound";
 import AddTransaction from "./pages/AddTransaction";
+import DailyTransactions from "./pages/DailyTransactions";
 import { FinanceProvider } from "./context/FinanceContext";
 
 const queryClient = new QueryClient();
@@ -25,6 +25,7 @@ const App = () => (
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/analysis" element={<Analysis />} />
             <Route path="/add-transaction" element={<AddTransaction />} />
+            <Route path="/transactions/:date" element={<DailyTransactions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

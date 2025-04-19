@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useFinance } from '@/context/FinanceContext';
@@ -138,25 +137,16 @@ const Index = () => {
             Add Transaction
           </Button>
           
-          <Tabs defaultValue="list">
+          <Tabs defaultValue="calendar">
             <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="list">List</TabsTrigger>
               <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="list">List</TabsTrigger>
             </TabsList>
+            <TabsContent value="calendar">
+              <CalendarView />
+            </TabsContent>
             <TabsContent value="list">
               <TransactionList />
-            </TabsContent>
-            <TabsContent value="calendar">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-center h-96 text-gray-400">
-                    <Calendar size={64} className="opacity-20" />
-                  </div>
-                  <div className="text-center text-gray-500">
-                    Calendar view coming soon
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
           </Tabs>
         </div>

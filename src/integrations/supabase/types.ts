@@ -64,7 +64,6 @@ export type Database = {
       }
       categories: {
         Row: {
-          book_id: string
           created_at: string
           icon: string
           id: string
@@ -72,7 +71,6 @@ export type Database = {
           type: string
         }
         Insert: {
-          book_id: string
           created_at?: string
           icon: string
           id?: string
@@ -80,22 +78,13 @@ export type Database = {
           type?: string
         }
         Update: {
-          book_id?: string
           created_at?: string
           icon?: string
           id?: string
           name?: string
           type?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "categories_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "books"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       members: {
         Row: {

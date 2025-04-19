@@ -42,7 +42,7 @@ type BookType = {
 };
 
 type FinanceContextType = {
-  transactions: TransactionType[];
+  transactions: (TransactionType | TransferTransactionType)[];
   categories: CategoryType[];
   accounts: AccountType[];
   members: MemberType[];
@@ -81,10 +81,11 @@ export type TransferTransactionType = {
   date: string;
   description: string;
   memberId: string;
+  type: 'transfer';
 };
 
 export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) => {
-  const [transactions, setTransactions] = useState<TransactionType[]>([]);
+  const [transactions, setTransactions] = useState<(TransactionType | TransferTransactionType)[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [accounts, setAccounts] = useState<AccountType[]>([]);
   const [members, setMembers] = useState<MemberType[]>([]);
@@ -147,6 +148,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const fetchTransactionsForBook = useCallback(async (bookId: string) => {
     try {
+      // Fetch regular transactions
       const { data: transactionsData, error: transactionsError } = await supabase
         .from('transactions')
         .select('*')
@@ -154,7 +156,15 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
       if (transactionsError) throw transactionsError;
 
-      setTransactions(transactionsData?.map(transaction => ({
+      // Fetch transfer transactions
+      const { data: transferData, error: transferError } = await supabase
+        .from('transfer_transactions')
+        .select('*')
+        .eq('book_id', bookId);
+
+      if (transferError) throw transferError;
+
+      const regularTransactions = transactionsData?.map(transaction => ({
         id: transaction.id,
         bookId: transaction.book_id,
         amount: transaction.amount,
@@ -164,7 +174,21 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         memberId: transaction.member_id,
         date: transaction.date,
         description: transaction.description || ''
-      })) || []);
+      })) || [];
+
+      const transferTransactions = transferData?.map(transfer => ({
+        id: transfer.id,
+        bookId: transfer.book_id,
+        amount: transfer.amount,
+        type: 'transfer' as const,
+        fromAccountId: transfer.from_account_id,
+        toAccountId: transfer.to_account_id,
+        memberId: transfer.member_id,
+        date: transfer.date,
+        description: transfer.description || ''
+      })) || [];
+
+      setTransactions([...regularTransactions, ...transferTransactions]);
     } catch (error) {
       console.error('Error fetching transactions:', error);
     }
@@ -447,13 +471,77 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const deleteTransaction = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', id);
+      // First, check if it's a regular transaction
+      const transaction = transactions.find(t => t.id === id);
+      if (!transaction) return;
 
-      if (error) throw error;
+      if ('type' in transaction && (transaction.type === 'income' || transaction.type === 'expense')) {
+        // Get the account's current balance
+        const { data: accountData, error: accountError } = await supabase
+          .from('accounts')
+          .select('balance')
+          .eq('id', transaction.accountId)
+          .single();
+
+        if (accountError) throw accountError;
+
+        // Calculate the new balance
+        const newBalance = transaction.type === 'income' 
+          ? accountData.balance - transaction.amount  // Reverse income
+          : accountData.balance + transaction.amount; // Reverse expense
+
+        // Update the account balance
+        const { error: updateError } = await supabase
+          .from('accounts')
+          .update({ balance: newBalance })
+          .eq('id', transaction.accountId);
+
+        if (updateError) throw updateError;
+
+        // Delete the transaction
+        const { error: deleteError } = await supabase
+          .from('transactions')
+          .delete()
+          .eq('id', id);
+
+        if (deleteError) throw deleteError;
+      } else {
+        // It's a transfer transaction
+        const transfer = transaction as TransferTransactionType;
+        
+        // Reverse the transfer by updating both accounts
+        const { error: fromAccountError } = await supabase.rpc(
+          'increment_balance',
+          {
+            account_id_param: transfer.fromAccountId,
+            amount_param: transfer.amount
+          }
+        );
+
+        if (fromAccountError) throw fromAccountError;
+
+        const { error: toAccountError } = await supabase.rpc(
+          'decrement_balance',
+          {
+            account_id_param: transfer.toAccountId,
+            amount_param: transfer.amount
+          }
+        );
+
+        if (toAccountError) throw toAccountError;
+
+        // Delete the transfer transaction
+        const { error: deleteError } = await supabase
+          .from('transfer_transactions')
+          .delete()
+          .eq('id', id);
+
+        if (deleteError) throw deleteError;
+      }
+
+      // Update local state
       setTransactions(transactions.filter(t => t.id !== id));
+      await fetchAccountsForBook(currentBook.id);
     } catch (error) {
       console.error('Error deleting transaction:', error);
     }
