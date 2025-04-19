@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
@@ -318,7 +319,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       if (transaction.type === 'income') {
         const { data: newBalance, error: accountError } = await supabase.rpc(
-          'increment_balance',
+          'increment_balance', 
           { 
             account_id_param: transaction.accountId, 
             amount_param: transaction.amount 
@@ -335,7 +336,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         if (updateError) throw updateError;
       } else {
         const { data: newBalance, error: accountError } = await supabase.rpc(
-          'decrement_balance',
+          'decrement_balance', 
           { 
             account_id_param: transaction.accountId, 
             amount_param: transaction.amount 
@@ -392,7 +393,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const addTransferTransaction = async (transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => {
     try {
       const { data: fromAccountBalance, error: fromAccountError } = await supabase.rpc(
-        'decrement_balance',
+        'decrement_balance', 
         { 
           account_id_param: transfer.fromAccountId, 
           amount_param: transfer.amount 
@@ -409,7 +410,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       if (updateFromError) throw updateFromError;
 
       const { data: toAccountBalance, error: toAccountError } = await supabase.rpc(
-        'increment_balance',
+        'increment_balance', 
         { 
           account_id_param: transfer.toAccountId, 
           amount_param: transfer.amount 
