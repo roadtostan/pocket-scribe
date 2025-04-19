@@ -18,10 +18,11 @@ const ChartAnalysis = () => {
   
   // Filter transactions by type and selected month/year
   const filteredTransactions = transactions.filter(t => {
-    if (t.type !== transactionType) return false;
-    
     // Transfer transactions don't have category or account IDs
-    if (t.type === 'transfer') return false;
+    if ('type' in t && t.type === 'transfer') return false;
+    
+    // Now we know it's a regular transaction
+    if ((t as TransactionType).type !== transactionType) return false;
     
     const transactionDate = parseISO(t.date);
     return isSameMonth(transactionDate, selectedDate) && 
@@ -59,9 +60,8 @@ const ChartAnalysis = () => {
     return result;
   }, {} as Record<string, { name: string; value: number; id: string }>);
   
-  const chartData = Object.values(groupedData).sort((a, b) => b.value - a.value);
-  
   // Calculate total
+  const chartData = Object.values(groupedData).sort((a, b) => b.value - a.value);
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
   
   // Colors for pie chart
