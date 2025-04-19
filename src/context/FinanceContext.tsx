@@ -72,7 +72,6 @@ interface FinanceProviderProps {
   children: React.ReactNode;
 }
 
-// Add TransferTransactionType interface
 export type TransferTransactionType = {
   id: string;
   bookId: string;
@@ -264,7 +263,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: category.name,
           icon: category.icon,
           type: category.type as 'income' | 'expense' | 'both'
-        })));
+        }));
       }
 
       const defaultAccounts = [
@@ -284,7 +283,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: account.name,
           type: account.type as AccountType['type'],
           balance: account.balance
-        })));
+        }));
       }
 
       const { data: memberData } = await supabase
@@ -317,36 +316,42 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const addTransaction = async (transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
     try {
-      // First, update the account balance
       if (transaction.type === 'income') {
-        // For income, add to balance
-        const { error: accountError } = await supabase
-          .from('accounts')
-          .update({
-            balance: supabase.rpc('increment_balance', { 
-              account_id_param: transaction.accountId, 
-              amount_param: transaction.amount 
-            })
-          })
-          .eq('id', transaction.accountId);
+        const { data: newBalance, error: accountError } = await supabase.rpc(
+          'increment_balance',
+          { 
+            account_id_param: transaction.accountId, 
+            amount_param: transaction.amount 
+          }
+        );
 
         if (accountError) throw accountError;
+
+        const { error: updateError } = await supabase
+          .from('accounts')
+          .update({ balance: newBalance })
+          .eq('id', transaction.accountId);
+
+        if (updateError) throw updateError;
       } else {
-        // For expense, subtract from balance
-        const { error: accountError } = await supabase
-          .from('accounts')
-          .update({
-            balance: supabase.rpc('decrement_balance', { 
-              account_id_param: transaction.accountId, 
-              amount_param: transaction.amount 
-            })
-          })
-          .eq('id', transaction.accountId);
+        const { data: newBalance, error: accountError } = await supabase.rpc(
+          'decrement_balance',
+          { 
+            account_id_param: transaction.accountId, 
+            amount_param: transaction.amount 
+          }
+        );
 
         if (accountError) throw accountError;
+
+        const { error: updateError } = await supabase
+          .from('accounts')
+          .update({ balance: newBalance })
+          .eq('id', transaction.accountId);
+
+        if (updateError) throw updateError;
       }
 
-      // Then create the transaction
       const { data, error } = await supabase
         .from('transactions')
         .insert({
@@ -363,6 +368,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         .single();
 
       if (error) throw error;
+
       if (data) {
         setTransactions([...transactions, {
           id: data.id,
@@ -376,7 +382,6 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           description: data.description || ''
         }]);
 
-        // Refresh accounts to get updated balance
         await fetchAccountsForBook(currentBook.id);
       }
     } catch (error) {
@@ -386,34 +391,41 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const addTransferTransaction = async (transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => {
     try {
-      // First, subtract from source account
-      const { error: fromAccountError } = await supabase
-        .from('accounts')
-        .update({
-          balance: supabase.rpc('decrement_balance', { 
-            account_id_param: transfer.fromAccountId, 
-            amount_param: transfer.amount 
-          })
-        })
-        .eq('id', transfer.fromAccountId);
+      const { data: fromAccountBalance, error: fromAccountError } = await supabase.rpc(
+        'decrement_balance',
+        { 
+          account_id_param: transfer.fromAccountId, 
+          amount_param: transfer.amount 
+        }
+      );
 
       if (fromAccountError) throw fromAccountError;
 
-      // Then, add to destination account
-      const { error: toAccountError } = await supabase
+      const { error: updateFromError } = await supabase
         .from('accounts')
-        .update({
-          balance: supabase.rpc('increment_balance', { 
-            account_id_param: transfer.toAccountId, 
-            amount_param: transfer.amount 
-          })
-        })
-        .eq('id', transfer.toAccountId);
+        .update({ balance: fromAccountBalance })
+        .eq('id', transfer.fromAccountId);
+
+      if (updateFromError) throw updateFromError;
+
+      const { data: toAccountBalance, error: toAccountError } = await supabase.rpc(
+        'increment_balance',
+        { 
+          account_id_param: transfer.toAccountId, 
+          amount_param: transfer.amount 
+        }
+      );
 
       if (toAccountError) throw toAccountError;
 
-      // Finally, create the transfer transaction
-      const { data, error } = await supabase
+      const { error: updateToError } = await supabase
+        .from('accounts')
+        .update({ balance: toAccountBalance })
+        .eq('id', transfer.toAccountId);
+
+      if (updateToError) throw updateToError;
+
+      const { error } = await supabase
         .from('transfer_transactions')
         .insert({
           book_id: currentBook.id,
@@ -423,13 +435,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           date: transfer.date,
           description: transfer.description,
           member_id: transfer.memberId
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
 
-      // Refresh accounts to get updated balances
       await fetchAccountsForBook(currentBook.id);
     } catch (error) {
       console.error('Error adding transfer:', error);
