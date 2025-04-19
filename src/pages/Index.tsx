@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import CalendarView from '@/components/CalendarView';
-import FinancialTrend from '@/components/FinancialTrend';
 
 const Index = () => {
   const { 
@@ -151,8 +150,6 @@ const Index = () => {
               <TransactionList />
             </TabsContent>
           </Tabs>
-          
-          <FinancialTrend />
         </div>
       </div>
     </Layout>

@@ -2,9 +2,16 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useFinance, AccountType } from '@/context/FinanceContext';
 import { format, subDays, isWithinInterval, parseISO } from 'date-fns';
+import { id } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -20,6 +27,12 @@ const FinancialTrend = () => {
     '30days': 30,
     '90days': 90
   };
+
+  const formatMiniRupiah = (value: number) => {
+    if (value >= 1_000_000) return `${value / 1_000_000}jt`;
+    if (value >= 1_000) return `${value / 1_000}rb`;
+    return value;
+  };  
 
   const balanceData = useMemo(() => {
     const days = timeRanges[selectedTimeRange];
@@ -42,7 +55,7 @@ const FinancialTrend = () => {
       });
 
       return {
-        date: format(date, 'MMM dd'),
+        date: format(date, 'd MMM', { locale: id }),
         assets,
         debts
       };
@@ -87,7 +100,7 @@ const FinancialTrend = () => {
       }, 0);
 
       return {
-        date: format(date, 'MMM dd'),
+        date: format(date, 'd MMM', { locale: id }),
         income,
         expense
       };
@@ -124,7 +137,7 @@ const FinancialTrend = () => {
   return (
     <Card className="w-full mt-6">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
           <CardTitle>Financial Trend</CardTitle>
           <Select value={selectedTimeRange} onValueChange={(value: TimeRange) => setSelectedTimeRange(value)}>
             <SelectTrigger className="w-[120px]">
@@ -136,36 +149,44 @@ const FinancialTrend = () => {
               <SelectItem value="90days">90 Days</SelectItem>
             </SelectContent>
           </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-[150px] justify-start">
+                {selectedAccounts.length > 0
+                  ? `Accounts: ${selectedAccounts.length}`
+                  : "Select Accounts"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[150px]">
+              <h3 className="font-medium mb-2">Accounts</h3>
+              <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
+                {accounts.map((account) => (
+                  <div key={account.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={account.id}
+                      checked={selectedAccounts.includes(account.id)}
+                      onCheckedChange={() => handleAccountToggle(account.id)}
+                    />
+                    <label htmlFor={account.id} className="text-sm">
+                      {account.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">Selected Accounts:</h3>
-          <div className="flex flex-wrap gap-4">
-            {accounts.map(account => (
-              <div key={account.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={account.id}
-                  checked={selectedAccounts.includes(account.id)}
-                  onCheckedChange={() => handleAccountToggle(account.id)}
-                />
-                <label htmlFor={account.id} className="text-sm">
-                  {account.name}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="space-y-6">
           <div>
             <h3 className="font-medium mb-2">Total Balance Trend</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={balanceData}>
+                <LineChart data={balanceData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis />
+                  <YAxis tickFormatter={formatMiniRupiah} width={40} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Line
@@ -194,7 +215,7 @@ const FinancialTrend = () => {
                 <LineChart data={cashflowData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis />
+                  <YAxis tickFormatter={formatMiniRupiah} width={40} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   <Line

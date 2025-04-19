@@ -288,8 +288,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       }
 
       const defaultAccounts = [
-        { book_id: bookId, name: 'Cash', type: 'Cash', balance: 0 },
-        { book_id: bookId, name: 'Bank', type: 'Bank', balance: 0 }
+        { book_id: bookId, name: 'Uang tunai', type: 'Cash', balance: 0 },
+        { book_id: bookId, name: 'Bank', type: 'Conventional Bank', balance: 0 }
       ];
 
       const { data: accountsData } = await supabase
@@ -309,7 +309,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
       const { data: memberData } = await supabase
         .from('members')
-        .insert({ book_id: bookId, name: 'Wanda sayang' })
+        .insert({ book_id: bookId, name: 'Saya' })
         .select()
         .single();
 
