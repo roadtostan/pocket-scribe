@@ -55,13 +55,24 @@ const FinancialTrend = () => {
     
     return dates.map(date => {
       const dayTransactions = transactions.filter(t => {
-        if ('type' in t && t.type === 'transfer') return false;
+        // First check if it's a transfer transaction
+        if ('type' in t && t.type === 'transfer') {
+          return (
+            isWithinInterval(parseISO(t.date), {
+              start: date,
+              end: date
+            }) &&
+            (selectedAccounts.includes(t.fromAccountId) || selectedAccounts.includes(t.toAccountId))
+          );
+        }
+        
+        // Then handle regular transactions
         return (
           isWithinInterval(parseISO(t.date), {
             start: date,
             end: date
           }) &&
-          selectedAccounts.includes('type' in t ? t.accountId : t.fromAccountId)
+          selectedAccounts.includes(t.accountId)
         );
       });
 
