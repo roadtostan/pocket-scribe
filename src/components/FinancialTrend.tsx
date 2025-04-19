@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useFinance, AccountType } from '@/context/FinanceContext';
-import { format, subDays, isWithinInterval, parseISO } from 'date-fns';
+import { format, subDays, isWithinInterval, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -67,35 +67,42 @@ const FinancialTrend = () => {
     const dates = Array.from({ length: days }, (_, i) => subDays(new Date(), days - 1 - i));
     
     return dates.map(date => {
+      const dateStart = startOfDay(date);
+      const dateEnd = endOfDay(date);
+      
+      // Filter transactions that belong to the selected accounts and happened on this date
       const dayTransactions = transactions.filter(t => {
-        // First check if it's a transfer transaction
+        const transactionDate = parseISO(t.date);
+        
+        // Check if the transaction happens on this date
+        const isOnThisDate = isWithinInterval(transactionDate, {
+          start: dateStart,
+          end: dateEnd
+        });
+        
+        if (!isOnThisDate) return false;
+        
+        // Check if this is a transfer transaction
         if ('type' in t && t.type === 'transfer') {
-          return (
-            isWithinInterval(parseISO(t.date), {
-              start: date,
-              end: date
-            }) &&
-            (selectedAccounts.includes(t.fromAccountId) || selectedAccounts.includes(t.toAccountId))
-          );
+          return selectedAccounts.includes(t.fromAccountId) || selectedAccounts.includes(t.toAccountId);
         }
         
-        // Then handle regular transactions
-        return (
-          isWithinInterval(parseISO(t.date), {
-            start: date,
-            end: date
-          }) &&
-          selectedAccounts.includes(t.accountId)
-        );
+        // Regular income/expense transaction
+        return selectedAccounts.includes(t.accountId);
       });
 
+      // Calculate income and expense totals
       const income = dayTransactions.reduce((sum, t) => {
-        if ('type' in t && t.type === 'income') return sum + t.amount;
+        if ('type' in t && t.type === 'income') {
+          return sum + t.amount;
+        }
         return sum;
       }, 0);
 
       const expense = dayTransactions.reduce((sum, t) => {
-        if ('type' in t && t.type === 'expense') return sum + t.amount;
+        if ('type' in t && t.type === 'expense') {
+          return sum + t.amount;
+        }
         return sum;
       }, 0);
 
