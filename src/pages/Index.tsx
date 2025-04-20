@@ -58,7 +58,7 @@ const Index = () => {
   return (
     <Layout>
       <div className="pt-6 pb-20">
-        <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white mb-6">
+        <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white mb-4">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-1">
@@ -126,7 +126,7 @@ const Index = () => {
           </CardContent>
         </Card>
         
-        <div className="space-y-6">
+        <div className="space-y-4">
           <MonthYearPicker />
           <MonthlySummary />
           

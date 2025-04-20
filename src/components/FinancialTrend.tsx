@@ -28,10 +28,10 @@ const FinancialTrend = () => {
     '90days': 90
   };
 
-  const formatMiniRupiah = (value: number) => {
+  const formatMiniRupiah = (value: number): string => {
     if (value >= 1_000_000) return `${value / 1_000_000}jt`;
     if (value >= 1_000) return `${value / 1_000}rb`;
-    return value;
+    return `${value}`;
   };  
 
   const balanceData = useMemo(() => {

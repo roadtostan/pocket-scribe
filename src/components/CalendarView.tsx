@@ -15,10 +15,33 @@ const CalendarView = () => {
   const monthStart = startOfMonth(selectedDate);
   const monthEnd = endOfMonth(selectedDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const offset = (monthStart.getDay() + 6) % 7;
 
   const getDayTransactions = (date: Date) => {
     return transactions.filter(t => isSameDay(parseISO(t.date), date));
   };
+
+  const formatMiniRupiah = (value: number): string => {
+    const formatNumber = (num: number): string => {
+      const str = num.toFixed(2);
+      return str.endsWith('.00')
+        ? parseInt(str).toString()
+        : str.endsWith('0')
+          ? num.toFixed(1)
+          : str;
+    };
+    if (value >= 1_000_000) {
+      const num = value / 1_000_000;
+      if (num >= 100) return `${Math.round(num)}jt`;
+      return `${formatNumber(num)}jt`;
+    }
+    if (value >= 1_000) {
+      const num = value / 1_000;
+      if (num >= 100) return `${Math.round(num)}rb`;
+      return `${formatNumber(num)}rb`;
+    }
+    return value.toString();
+  };    
 
   const calculateDayTotal = (date: Date) => {
     const dayTransactions = getDayTransactions(date);
@@ -39,13 +62,13 @@ const CalendarView = () => {
     <Card>
       <CardContent className="pt-6">
         <div className="grid grid-cols-7 gap-1">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+          {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day) => (
             <div key={day} className="text-center font-medium text-sm p-2">
               {day}
             </div>
           ))}
-          
-          {Array.from({ length: monthStart.getDay() }).map((_, index) => (
+
+          {Array.from({ length: offset }).map((_, index) => (
             <div key={`empty-${index}`} className="aspect-square" />
           ))}
           
@@ -54,22 +77,28 @@ const CalendarView = () => {
             const hasTransactions = getDayTransactions(day).length > 0;
             
             return (
-              <button
-                key={day.toISOString()}
-                onClick={() => hasTransactions && navigate(`/transactions/${format(day, 'yyyy-MM-dd')}`)}
-                className={cn(
-                  "aspect-square p-2 rounded-lg transition-colors",
-                  getBackgroundColor(total),
-                  hasTransactions ? 'hover:opacity-75 cursor-pointer' : 'cursor-default'
-                )}
-              >
-                <div className="text-sm font-medium">{format(day, 'd')}</div>
+              <div key={day.toISOString()} className="flex flex-col items-center">
+                <button
+                  onClick={() => hasTransactions && navigate(`/transactions/${format(day, 'yyyy-MM-dd')}`)}
+                  className={cn(
+                    "aspect-square w-full rounded-lg transition-colors",
+                    getBackgroundColor(total),
+                    hasTransactions ? 'hover:opacity-75 cursor-pointer' : 'cursor-default'
+                  )}
+                >
+                  <div className="text-sm font-medium p-2">
+                    {format(day, 'd')}
+                  </div>
+                </button>
+
+                {/* Total di luar button, tanpa padding */}
                 {hasTransactions && (
-                  <div className="text-xs mt-1 font-medium">
-                    {formatCurrency(Math.abs(total))}
+                  <div className="text-xs font-medium mt-1 text-center leading-none">
+                    <span className="block sm:hidden">{formatMiniRupiah(Math.abs(total))}</span>
+                    <span className="hidden sm:block">{formatCurrency(Math.abs(total))}</span>
                   </div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>

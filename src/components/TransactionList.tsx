@@ -65,7 +65,7 @@ const TransactionList = () => {
                     />
                   ))
                 }
-                <div className="p-3 bg-gray-50/50 flex justify-between items-center text-sm">
+                <div className="p-3 bg-gray-50/50 flex flex-col md:flex-row justify-between items-start md:items-center text-sm gap-2">
                   <span>Daily Totals:</span>
                   <div className="space-x-4">
                     <span className="text-income">
