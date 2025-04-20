@@ -138,10 +138,10 @@ const Index = () => {
             Add Transaction
           </Button>
           
-          <Tabs defaultValue="calendar">
+          <Tabs defaultValue="list">
             <TabsList className="grid grid-cols-2 mb-4">
-              <TabsTrigger value="calendar">Calendar</TabsTrigger>
               <TabsTrigger value="list">List</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
             </TabsList>
             <TabsContent value="calendar">
               <CalendarView />
