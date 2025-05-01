@@ -176,7 +176,7 @@ const ChartAnalysis = () => {
             
             <div className="w-full md:w-1/2">
               <h3 className="font-medium mb-3">Breakdown</h3>
-              <div className="max-h-[300px] overflow-y-auto pr-2 space-y-3">
+              <div className="max-h-[40vh] overflow-y-auto pr-2 space-y-3">
                 {chartData.map((item, index) => {
                   const percent = Math.round((item.value / total) * 100);
                   const category = categories.find(c => c.id === item.id);

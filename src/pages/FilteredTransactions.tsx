@@ -106,12 +106,12 @@ const FilteredTransactions = () => {
         </Button>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <CardTitle>
               {transactionType ? `${transactionType === 'income' ? 'Income' : 'Expense'} for ` : 'Transactions for '}
               {filterName}
             </CardTitle>
-            <div className={total >= 0 ? 'text-income' : 'text-expense'}>
+            <div className={`font-bold text-xl ${total >= 0 ? 'text-income' : 'text-expense'} md:text-right`}>
               {formatCurrency(total)}
             </div>
           </CardHeader>
