@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -194,7 +193,10 @@ const FinancialTrend = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={balanceData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis 
+                    dataKey="date"
+                    tickFormatter={(value) => format(new Date(value), 'dd MMM')}
+                  />
                   <YAxis tickFormatter={formatMiniRupiah} width={40} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
@@ -223,7 +225,10 @@ const FinancialTrend = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={cashflowData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis 
+                    dataKey="date"
+                    tickFormatter={(value) => format(new Date(value), 'dd MMM')}
+                  />
                   <YAxis tickFormatter={formatMiniRupiah} width={40} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />

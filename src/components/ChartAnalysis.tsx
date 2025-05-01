@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency } from '@/lib/formatCurrency';
 import CategoryIcon from './CategoryIcon';
 import { isSameMonth, isSameYear, parseISO } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 type GroupBy = 'category' | 'account' | 'member';
 
@@ -15,6 +16,7 @@ const ChartAnalysis = () => {
   const { transactions, categories, accounts, members, selectedDate } = useFinance();
   const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense');
   const [groupBy, setGroupBy] = useState<GroupBy>('category');
+  const navigate = useNavigate();
   
   // Filter transactions by type and selected month/year
   const filteredTransactions = transactions.filter(t => {
@@ -91,6 +93,15 @@ const ChartAnalysis = () => {
       );
     }
     return null;
+  };
+
+  const handleRowClick = (itemId: string) => {
+    // Get the current month and year
+    const month = selectedDate.getMonth() + 1; // JavaScript months are 0-based
+    const year = selectedDate.getFullYear();
+    
+    // Navigate to the filtered transactions page
+    navigate(`/filtered-transactions/${groupBy}/${itemId}/${transactionType}/${month}/${year}`);
   };
   
   return (
@@ -171,7 +182,11 @@ const ChartAnalysis = () => {
                   const category = categories.find(c => c.id === item.id);
                   
                   return (
-                    <div key={item.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                    <div 
+                      key={item.id} 
+                      className="flex items-center justify-between p-2 bg-gray-50 rounded-md hover:bg-gray-100 cursor-pointer transition-colors"
+                      onClick={() => handleRowClick(item.id)}
+                    >
                       <div className="flex items-center gap-2">
                         <div 
                           className="w-4 h-4 rounded-full" 
