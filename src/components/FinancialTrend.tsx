@@ -186,7 +186,9 @@ const FinancialTrend = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <div>
+          
+          {/* commented out because there is no daily total balance history yet  */}
+          {/* <div>
             <h3 className="font-medium mb-2">Total Balance Trend</h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -213,7 +215,7 @@ const FinancialTrend = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </div> */}
 
           <div>
             <h3 className="font-medium mb-2">Income and Expense Trend</h3>
