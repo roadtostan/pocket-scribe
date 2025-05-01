@@ -6,6 +6,7 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import CategoryIcon from './CategoryIcon';
 import { Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
+import { useLocation } from 'react-router-dom';
 
 interface TransactionItemProps {
   transaction: TransactionType | TransferTransactionType;
@@ -14,6 +15,13 @@ interface TransactionItemProps {
 
 const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
   const { categories, accounts, members } = useFinance();
+  const location = useLocation();
+  
+  // Detect if we're in FilteredTransactions and get the filter type
+  const isFilteredView = location.pathname.includes('/filtered-transactions');
+  const filterType = isFilteredView 
+    ? location.pathname.split('/')[2] // Extract filterType from URL
+    : null;
   
   // Handle both regular and transfer transaction types
   if (transaction.type === 'transfer') {
@@ -45,19 +53,19 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
           )}
         </div>
         <div className="text-sm text-gray-500 mt-2 flex flex-wrap gap-x-1">
-          {transaction.description && (
+          {transaction.description && filterType !== 'category' && (
             <>
               <span>{transaction.description}</span>
               <span>•</span>
             </>
           )}
-          {fromAccount?.name && toAccount?.name && (
+          {fromAccount?.name && toAccount?.name && filterType !== 'account' && (
             <>
               <span>{fromAccount.name} → {toAccount.name}</span>
               <span>•</span>
             </>
           )}
-          <span>{member?.name}</span>
+          {member?.name && filterType !== 'member' && <span>{member?.name}</span>}
         </div>
       </div>
     );
@@ -67,6 +75,11 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
   const category = categories.find(c => c.id === transaction.categoryId);
   const account = accounts.find(a => a.id === transaction.accountId);
   const member = members.find(m => m.id === transaction.memberId);
+
+  // For category filter view, show description instead of category name
+  const titleDisplay = (filterType === 'category' && transaction.description) 
+    ? transaction.description 
+    : category?.name;
 
   return (
     <div className="p-3 border-b last:border-b-0">
@@ -79,7 +92,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
             {category && <CategoryIcon iconName={category.icon} />}
           </div>
           <div>
-            <div className="text-base font-semibold">{category?.name}</div>
+            <div className="text-base font-semibold">{titleDisplay}</div>
             <div className={cn(
               "text-lg font-bold",
               transaction.type === 'income' ? 'text-income' : 'text-expense'
@@ -100,19 +113,19 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
         )}
       </div>
       <div className="text-sm text-gray-500 mt-2 flex flex-wrap gap-x-1">
-        {transaction.description && (
+        {transaction.description && filterType !== 'category' && (
           <>
             <span>{transaction.description}</span>
             <span>•</span>
           </>
         )}
-        {account?.name && (
+        {account?.name && filterType !== 'account' && (
           <>
             <span>{account.name}</span>
             <span>•</span>
           </>
         )}
-        <span>{member?.name}</span>
+        {member?.name && filterType !== 'member' && <span>{member?.name}</span>}
       </div>
     </div>
   );
