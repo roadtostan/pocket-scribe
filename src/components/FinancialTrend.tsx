@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -227,7 +228,6 @@ const FinancialTrend = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="date"
-                    tickFormatter={(value) => format(new Date(value), 'dd MMM')}
                   />
                   <YAxis tickFormatter={formatMiniRupiah} width={40} />
                   <Tooltip content={<CustomTooltip />} />
