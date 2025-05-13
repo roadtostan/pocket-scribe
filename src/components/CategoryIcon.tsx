@@ -3,7 +3,7 @@ import React from 'react';
 import { 
   Utensils, Car, ShoppingCart, Home, Smile, Wifi, 
   Gift, Heart, Shirt, Activity, Landmark, Folder,
-  Briefcase, TrendingUp, Award, LucideIcon
+  Briefcase, TrendingUp, Award, LucideIcon, Flower, SoapDispenserDroplet,
 } from 'lucide-react';
 
 interface CategoryIconProps {
@@ -28,6 +28,8 @@ const iconMap: Record<string, LucideIcon> = {
   briefcase: Briefcase,
   'trending-up': TrendingUp,
   award: Award,
+  flower: Flower,
+  'soap-dispenser-droplet': SoapDispenserDroplet,
 };
 
 const CategoryIcon: React.FC<CategoryIconProps> = ({ iconName, className, size = 20 }) => {
