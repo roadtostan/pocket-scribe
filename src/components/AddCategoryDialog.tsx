@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -14,7 +13,7 @@ import CategoryIcon from './CategoryIcon';
 const ICONS = [
   'utensils', 'car', 'shopping-cart', 'home', 'smile', 'wifi',
   'gift', 'heart', 'shirt', 'activity', 'landmark', 'folder',
-  'briefcase', 'trending-up', 'award', 'flower', 'soap-dispenser-droplet',
+  'briefcase', 'trending-up', 'award', 'flower',
   // Additional icons from lucide
   'book', 'camera', 'coffee', 'dollar-sign', 'droplet', 'film',
   'globe', 'headphones', 'map', 'music', 'package', 'phone',

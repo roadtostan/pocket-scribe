@@ -3,10 +3,10 @@ import React, { Suspense, lazy } from 'react';
 import { 
   Utensils, Car, ShoppingCart, Home, Smile, Wifi, 
   Gift, Heart, Shirt, Activity, Landmark, Folder,
-  Briefcase, TrendingUp, Award, LucideIcon, Flower, SoapDispenserDroplet,
+  Briefcase, TrendingUp, Award, LucideIcon, Flower,
   Loader
 } from 'lucide-react';
-import { dynamicIconImports } from 'lucide-react/dynamicIconImports';
+import dynamicIconImports from 'lucide-react/dynamicIconImports';
 
 interface CategoryIconProps {
   iconName: string;
@@ -32,7 +32,6 @@ const staticIconMap: Record<string, LucideIcon> = {
   'trending-up': TrendingUp,
   award: Award,
   flower: Flower,
-  'soap-dispenser-droplet': SoapDispenserDroplet,
 };
 
 const CategoryIcon: React.FC<CategoryIconProps> = ({ iconName, className, size = 20 }) => {
