@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "pocket-scribe",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://roadtostan.github.io/pocket-scribe/",
   "type": "module",
   "scripts": {
     "dev": "vite",
