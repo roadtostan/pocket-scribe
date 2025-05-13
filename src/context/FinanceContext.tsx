@@ -284,7 +284,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: category.name,
           icon: category.icon,
           type: category.type as 'income' | 'expense' | 'both'
-        }));
+        })));
       }
 
       const defaultAccounts = [
@@ -304,7 +304,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: account.name,
           type: account.type as AccountType['type'],
           balance: account.balance
-        }));
+        })));
       }
 
       const { data: memberData } = await supabase
