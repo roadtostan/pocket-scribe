@@ -613,7 +613,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       // Create an array of update operations for the batch update
       const updates = updatedCategories.map(category => ({
         id: category.id,
-        sort_order: category.sortOrder
+        sort_order: category.sortOrder,
+        name: category.name,
+        icon: category.icon,
+        type: category.type
       }));
 
       const { error } = await supabase

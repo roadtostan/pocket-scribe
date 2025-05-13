@@ -68,6 +68,7 @@ export type Database = {
           icon: string
           id: string
           name: string
+          sort_order: number | null
           type: string
         }
         Insert: {
@@ -75,6 +76,7 @@ export type Database = {
           icon: string
           id?: string
           name: string
+          sort_order?: number | null
           type?: string
         }
         Update: {
@@ -82,6 +84,7 @@ export type Database = {
           icon?: string
           id?: string
           name?: string
+          sort_order?: number | null
           type?: string
         }
         Relationships: []
