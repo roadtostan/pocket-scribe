@@ -8,11 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from 'sonner';
+import CategoryIcon from './CategoryIcon';
 
+// Extended list of icons including both static and dynamic ones
 const ICONS = [
   'utensils', 'car', 'shopping-cart', 'home', 'smile', 'wifi',
   'gift', 'heart', 'shirt', 'activity', 'landmark', 'folder',
-  'briefcase', 'trending-up', 'award'
+  'briefcase', 'trending-up', 'award', 'flower', 'soap-dispenser-droplet',
+  // Additional icons from lucide
+  'book', 'camera', 'coffee', 'dollar-sign', 'droplet', 'film',
+  'globe', 'headphones', 'map', 'music', 'package', 'phone',
+  'settings', 'shopping-bag', 'tag', 'tv', 'user', 'zap'
 ];
 
 interface AddCategoryDialogProps {
@@ -74,12 +80,17 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({ transactionType =
               <SelectTrigger id="icon">
                 <SelectValue placeholder="Select an icon" />
               </SelectTrigger>
-              <SelectContent>
-                {ICONS.map((iconName) => (
-                  <SelectItem key={iconName} value={iconName}>
-                    {iconName}
-                  </SelectItem>
-                ))}
+              <SelectContent className="max-h-[300px]">
+                <div className="grid grid-cols-4 gap-2 p-2">
+                  {ICONS.map((iconName) => (
+                    <SelectItem key={iconName} value={iconName} className="flex flex-col items-center justify-center p-2 hover:bg-gray-100 rounded cursor-pointer">
+                      <CategoryIcon iconName={iconName} size={24} />
+                      <span className="text-xs mt-1 text-center overflow-hidden text-ellipsis w-full">
+                        {iconName}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </div>
               </SelectContent>
             </Select>
           </div>
