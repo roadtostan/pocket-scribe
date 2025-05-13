@@ -24,8 +24,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CategoryIcon from './CategoryIcon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
-import AddCategoryDialog from './AddCategoryDialog';
 import AddMemberDialog from './AddMemberDialog';
+import CategoryManager from './CategoryManager';
 
 const TransactionForm = () => {
   const { categories, members, accounts, addTransaction, addTransferTransaction } = useFinance();
@@ -107,7 +107,7 @@ const TransactionForm = () => {
       return cat.type === 'income' || cat.type === 'both';
     }
     return cat.type === 'expense' || cat.type === 'both';
-  });
+  }).sort((a, b) => a.sortOrder - b.sortOrder);
 
   const handleCalcInput = (value: string) => {
     setCalculatorExpression(prev => prev + value);
@@ -280,7 +280,7 @@ const TransactionForm = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <AddCategoryDialog transactionType={transactionType} />
+                <CategoryManager transactionType={transactionType} />
               </div>
             </div>
           )}

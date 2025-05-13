@@ -32,6 +32,7 @@ export type CategoryType = {
   name: string;
   icon: string;
   type: 'income' | 'expense' | 'both';
+  sortOrder: number;
 };
 
 export type AccountType = {
@@ -64,7 +65,8 @@ type FinanceContextType = {
   
   addTransaction: (transaction: Omit<TransactionType, 'id' | 'bookId'>) => void;
   deleteTransaction: (id: string) => void;
-  addCategory: (category: Omit<CategoryType, 'id'>) => void;
+  addCategory: (category: Omit<CategoryType, 'id' | 'sortOrder'>) => void;
+  updateCategoryOrder: (categories: CategoryType[]) => Promise<void>;
   addAccount: (name: string, type: AccountType['type'], balance: number) => void;
   updateAccount: (id: string, updates: Partial<Omit<AccountType, 'id' | 'bookId'>>) => void;
   addMember: (member: Omit<MemberType, 'id' | 'bookId'>) => void;
@@ -198,7 +200,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     try {
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
-        .select('*');
+        .select('*')
+        .order('sort_order', { ascending: true });
 
       if (categoriesError) throw categoriesError;
 
@@ -206,7 +209,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         id: category.id,
         name: category.name,
         icon: category.icon,
-        type: category.type as 'income' | 'expense' | 'both'
+        type: category.type as 'income' | 'expense' | 'both',
+        sortOrder: category.sort_order || 0
       })) || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -256,21 +260,21 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const initializeDefaultData = async (bookId: string) => {
     try {
       const defaultCategories = [
-        { name: 'Food', icon: 'utensils', type: 'expense' },
-        { name: 'Transportation', icon: 'car', type: 'expense' },
-        { name: 'Shopping', icon: 'shopping-cart', type: 'expense' },
-        { name: 'Housing', icon: 'home', type: 'expense' },
-        { name: 'Entertainment', icon: 'smile', type: 'expense' },
-        { name: 'Utilities', icon: 'wifi', type: 'expense' },
-        { name: 'Gifts', icon: 'gift', type: 'expense' },
-        { name: 'Health', icon: 'heart', type: 'expense' },
-        { name: 'Clothing', icon: 'shirt', type: 'expense' },
-        { name: 'Activities', icon: 'activity', type: 'expense' },
-        { name: 'Travel', icon: 'landmark', type: 'expense' },
-        { name: 'Others', icon: 'folder', type: 'expense' },
-        { name: 'Salary', icon: 'briefcase', type: 'income' },
-        { name: 'Investment', icon: 'trending-up', type: 'income' },
-        { name: 'Bonus', icon: 'award', type: 'income' }
+        { name: 'Food', icon: 'utensils', type: 'expense', sort_order: 0 },
+        { name: 'Transportation', icon: 'car', type: 'expense', sort_order: 1 },
+        { name: 'Shopping', icon: 'shopping-cart', type: 'expense', sort_order: 2 },
+        { name: 'Housing', icon: 'home', type: 'expense', sort_order: 3 },
+        { name: 'Entertainment', icon: 'smile', type: 'expense', sort_order: 4 },
+        { name: 'Utilities', icon: 'wifi', type: 'expense', sort_order: 5 },
+        { name: 'Gifts', icon: 'gift', type: 'expense', sort_order: 6 },
+        { name: 'Health', icon: 'heart', type: 'expense', sort_order: 7 },
+        { name: 'Clothing', icon: 'shirt', type: 'expense', sort_order: 8 },
+        { name: 'Activities', icon: 'activity', type: 'expense', sort_order: 9 },
+        { name: 'Travel', icon: 'landmark', type: 'expense', sort_order: 10 },
+        { name: 'Others', icon: 'folder', type: 'expense', sort_order: 11 },
+        { name: 'Salary', icon: 'briefcase', type: 'income', sort_order: 0 },
+        { name: 'Investment', icon: 'trending-up', type: 'income', sort_order: 1 },
+        { name: 'Bonus', icon: 'award', type: 'income', sort_order: 2 }
       ];
 
       const { data: categoriesData } = await supabase
@@ -283,7 +287,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           id: category.id,
           name: category.name,
           icon: category.icon,
-          type: category.type as 'income' | 'expense' | 'both'
+          type: category.type as 'income' | 'expense' | 'both',
+          sortOrder: category.sort_order || 0
         })));
       }
 
@@ -560,14 +565,30 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     }
   };
 
-  const addCategory = async (category: Omit<CategoryType, 'id'>) => {
+  const addCategory = async (category: Omit<CategoryType, 'id' | 'sortOrder'>) => {
     try {
+      // Get the highest sort order for the category type
+      const { data: maxOrderData, error: maxOrderError } = await supabase
+        .from('categories')
+        .select('sort_order')
+        .eq('type', category.type)
+        .order('sort_order', { ascending: false })
+        .limit(1);
+      
+      if (maxOrderError) throw maxOrderError;
+      
+      // Calculate the next sort order (max + 1 or 0 if no categories)
+      const nextSortOrder = maxOrderData && maxOrderData.length > 0 
+        ? (maxOrderData[0].sort_order || 0) + 1 
+        : 0;
+
       const { data, error } = await supabase
         .from('categories')
         .insert({
           name: category.name,
           icon: category.icon,
-          type: category.type
+          type: category.type,
+          sort_order: nextSortOrder
         })
         .select()
         .single();
@@ -578,11 +599,39 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           id: data.id,
           name: data.name,
           icon: data.icon,
-          type: data.type as 'income' | 'expense' | 'both'
+          type: data.type as 'income' | 'expense' | 'both',
+          sortOrder: data.sort_order || 0
         }]);
       }
     } catch (error) {
       console.error('Error adding category:', error);
+    }
+  };
+
+  const updateCategoryOrder = async (updatedCategories: CategoryType[]): Promise<void> => {
+    try {
+      // Create an array of update operations for the batch update
+      const updates = updatedCategories.map(category => ({
+        id: category.id,
+        sort_order: category.sortOrder
+      }));
+
+      const { error } = await supabase
+        .from('categories')
+        .upsert(updates, { onConflict: 'id' });
+
+      if (error) throw error;
+
+      // Update local state with sorted categories
+      setCategories(prevCategories => {
+        const otherCategories = prevCategories.filter(
+          cat => !updatedCategories.some(updatedCat => updatedCat.id === cat.id)
+        );
+        return [...otherCategories, ...updatedCategories].sort((a, b) => a.sortOrder - b.sortOrder);
+      });
+    } catch (error) {
+      console.error('Error updating category order:', error);
+      throw error;
     }
   };
 
@@ -688,6 +737,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     addTransaction,
     deleteTransaction,
     addCategory,
+    updateCategoryOrder,
     addAccount,
     updateAccount,
     addMember,

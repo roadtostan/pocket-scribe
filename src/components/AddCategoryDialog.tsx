@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { toast } from 'sonner';
 import CategoryIcon from './CategoryIcon';
+import { cn } from '@/lib/utils';
 
 // Extended list of icons including both static and dynamic ones
 const ICONS = [
@@ -22,9 +24,19 @@ const ICONS = [
 
 interface AddCategoryDialogProps {
   transactionType?: 'income' | 'expense' | 'transfer';
+  buttonLabel?: string;
+  buttonVariant?: 'outline' | 'default' | 'secondary' | 'ghost';
+  buttonSize?: 'sm' | 'default';
+  fullWidth?: boolean;
 }
 
-const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({ transactionType = 'expense' }) => {
+const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({ 
+  transactionType = 'expense',
+  buttonLabel = 'Add',
+  buttonVariant = 'outline',
+  buttonSize = 'sm',
+  fullWidth = false
+}) => {
   const [name, setName] = React.useState('');
   const [selectedIcon, setSelectedIcon] = React.useState('');
   const [open, setOpen] = React.useState(false);
@@ -54,9 +66,13 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({ transactionType =
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button 
+          variant={buttonVariant} 
+          size={buttonSize}
+          className={cn(fullWidth && "w-full")}
+        >
           <Plus className="mr-2 h-4 w-4" />
-          Add
+          {buttonLabel}
         </Button>
       </DialogTrigger>
       <DialogContent>
