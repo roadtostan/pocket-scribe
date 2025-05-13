@@ -1,7 +1,7 @@
-
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export type TransactionType = {
   id: string;
@@ -284,7 +284,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: category.name,
           icon: category.icon,
           type: category.type as 'income' | 'expense' | 'both'
-        })));
+        }));
       }
 
       const defaultAccounts = [
@@ -304,7 +304,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           name: account.name,
           type: account.type as AccountType['type'],
           balance: account.balance
-        })));
+        }));
       }
 
       const { data: memberData } = await supabase
@@ -702,7 +702,11 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <LoadingSpinner size={32} />
+      </div>
+    );
   }
 
   return (
