@@ -289,7 +289,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           icon: category.icon,
           type: category.type as 'income' | 'expense' | 'both',
           sortOrder: category.sort_order || 0
-        })));
+        }));
       }
 
       const defaultAccounts = [
@@ -523,32 +523,49 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           .eq('id', id);
 
         if (deleteError) throw deleteError;
-      } else {
+      } else if (transaction.type === 'transfer') {
         // It's a transfer transaction
         const transfer = transaction as TransferTransactionType;
         
         // Reverse the transfer by updating both accounts
-        const { error: fromAccountError } = await supabase.rpc(
-          'increment_balance',
-          {
-            account_id_param: transfer.fromAccountId,
-            amount_param: transfer.amount
-          }
-        );
-
+        const { data: fromAccountData, error: fromAccountError } = await supabase
+          .from('accounts')
+          .select('balance')
+          .eq('id', transfer.fromAccountId)
+          .single();
+        
         if (fromAccountError) throw fromAccountError;
+        
+        // Increase the balance of the from account (reversing the decrease)
+        const newFromBalance = fromAccountData.balance + transfer.amount;
+        
+        const { error: updateFromError } = await supabase
+          .from('accounts')
+          .update({ balance: newFromBalance })
+          .eq('id', transfer.fromAccountId);
 
-        const { error: toAccountError } = await supabase.rpc(
-          'decrement_balance',
-          {
-            account_id_param: transfer.toAccountId,
-            amount_param: transfer.amount
-          }
-        );
-
+        if (updateFromError) throw updateFromError;
+        
+        // Get the to account's balance
+        const { data: toAccountData, error: toAccountError } = await supabase
+          .from('accounts')
+          .select('balance')
+          .eq('id', transfer.toAccountId)
+          .single();
+        
         if (toAccountError) throw toAccountError;
+        
+        // Decrease the balance of the to account (reversing the increase)
+        const newToBalance = toAccountData.balance - transfer.amount;
+        
+        const { error: updateToError } = await supabase
+          .from('accounts')
+          .update({ balance: newToBalance })
+          .eq('id', transfer.toAccountId);
 
-        // Delete the transfer transaction
+        if (updateToError) throw updateToError;
+
+        // Delete the transfer transaction from the transfer_transactions table
         const { error: deleteError } = await supabase
           .from('transfer_transactions')
           .delete()
