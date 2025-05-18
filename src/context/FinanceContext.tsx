@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
@@ -289,7 +290,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           icon: category.icon,
           type: category.type as 'income' | 'expense' | 'both',
           sortOrder: category.sort_order || 0
-        }));
+        })));
       }
 
       const defaultAccounts = [
