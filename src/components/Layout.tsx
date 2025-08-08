@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Book, Wallet, BarChart2, Cake } from 'lucide-react';
+import { Book, Wallet, BarChart2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LayoutProps {
@@ -19,7 +19,6 @@ const Layout = ({ children }: LayoutProps) => {
           <NavItem to="/" icon={<Book />} label="Home" />
           <NavItem to="/wallet" icon={<Wallet />} label="Wallet" />
           <NavItem to="/analysis" icon={<BarChart2 />} label="Analysis" />
-          <NavItem to="/wanda-birthday" icon={<Cake />} label="Birthday" />
         </div>
       </nav>
     </div>

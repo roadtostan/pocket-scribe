@@ -1,9 +1,23 @@
-import React from 'react';
-import { Heart, Gift, Sparkles, Cake, Star } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Heart, Gift, Sparkles, Cake, Star, Play, Pause, Volume2 } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 
 const WandaBirthday = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-indigo-950/20">
@@ -48,6 +62,26 @@ const WandaBirthday = () => {
                 <p className="text-muted-foreground">
                   Special moments captured just for you
                 </p>
+                
+                {/* Audio Placeholder */}
+                <div className="mt-6 mx-auto max-w-md p-6 rounded-lg bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 border-2 border-dashed border-muted-foreground/30">
+                  <div className="flex items-center justify-center mb-3">
+                    <Volume2 className="h-8 w-8 text-muted-foreground/50" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">Audio Message Placeholder</p>
+                  <p className="text-xs text-muted-foreground/70">Add your special birthday audio message here</p>
+                  
+                  {/* Hidden audio element - replace src with actual audio file */}
+                  <audio
+                    ref={audioRef}
+                    onEnded={() => setIsPlaying(false)}
+                    onPause={() => setIsPlaying(false)}
+                    onPlay={() => setIsPlaying(true)}
+                  >
+                    <source src="/path-to-your-audio-file.mp3" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -167,6 +201,28 @@ const WandaBirthday = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Floating Audio Control Button */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={toggleAudio}
+            className="group relative h-16 w-16 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-purple-300/50"
+          >
+            <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></div>
+            <div className="flex h-full w-full items-center justify-center">
+              {isPlaying ? (
+                <Pause className="h-6 w-6 text-white" />
+              ) : (
+                <Play className="h-6 w-6 text-white translate-x-0.5" />
+              )}
+            </div>
+            
+            {/* Pulse animation when playing */}
+            {isPlaying && (
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-ping opacity-30"></div>
+            )}
+          </button>
         </div>
       </div>
     </Layout>
