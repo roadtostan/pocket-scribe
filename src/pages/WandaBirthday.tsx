@@ -3,6 +3,15 @@ import { Heart, Gift, Sparkles, Cake, Star, Play, Pause, Volume2 } from 'lucide-
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 
+// Import assets
+import photo1 from '@/assets/photo-1.jpeg';
+import photo2 from '@/assets/photo-2.jpeg';
+import photo3 from '@/assets/photo-3.jpeg';
+import photo4 from '@/assets/photo-4.jpeg';
+import photo5 from '@/assets/photo-5.jpeg';
+import photo6 from '@/assets/photo-6.jpeg';
+import selamatUltahAudio from '@/assets/selamatUltah.mp3';
+
 const WandaBirthday = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -71,33 +80,30 @@ const WandaBirthday = () => {
                   <p className="text-sm text-muted-foreground mb-2">Audio Message Placeholder</p>
                   <p className="text-xs text-muted-foreground/70">Add your special birthday audio message here</p>
                   
-                  {/* Hidden audio element - replace src with actual audio file */}
+                  {/* Audio element */}
                   <audio
                     ref={audioRef}
                     onEnded={() => setIsPlaying(false)}
                     onPause={() => setIsPlaying(false)}
                     onPlay={() => setIsPlaying(true)}
                   >
-                    <source src="/assets/selamatUltah.mp3" type="audio/mpeg" />
+                    <source src={selamatUltahAudio} type="audio/mpeg" />
                     Your browser does not support the audio element.
                   </audio>
                 </div>
               </div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3, 4, 5, 6].map((index) => (
+                {[photo1, photo2, photo3, photo4, photo5, photo6].map((photo, index) => (
                   <div 
                     key={index}
-                    className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20"
+                    className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 shadow-lg"
                   >
-                    <div className="flex h-full items-center justify-center">
-                      <div className="text-center">
-                        <Gift className="mx-auto mb-2 h-12 w-12 text-muted-foreground/50" />
-                        <p className="text-sm text-muted-foreground">
-                          Photo Placeholder {index}
-                        </p>
-                      </div>
-                    </div>
+                    <img 
+                      src={photo} 
+                      alt={`Birthday memory ${index + 1}`}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
                   </div>
                 ))}
