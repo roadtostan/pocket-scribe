@@ -31,10 +31,10 @@ const WandaBirthday = () => {
               <Cake className="h-8 w-8 animate-pulse" />
             </div>
             <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-6xl">
-              Happy Birthday
+              Selamat Ulang Tahun
             </h1>
             <h2 className="mb-6 text-2xl font-light md:text-4xl">
-              Dear Wanda! 🎉
+              Mbak Wanda! 🎉
             </h2>
             <p className="mx-auto max-w-2xl text-lg opacity-90">
               Wishing you a day filled with love, laughter, and all your favorite things!
@@ -78,7 +78,7 @@ const WandaBirthday = () => {
                     onPause={() => setIsPlaying(false)}
                     onPlay={() => setIsPlaying(true)}
                   >
-                    <source src="/path-to-your-audio-file.mp3" type="audio/mpeg" />
+                    <source src="/assets/selamatUltah.mp3" type="audio/mpeg" />
                     Your browser does not support the audio element.
                   </audio>
                 </div>
