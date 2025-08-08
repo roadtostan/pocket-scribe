@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import AddTransaction from "./pages/AddTransaction";
 import DailyTransactionsPage from "./pages/DailyTransactions";
 import FilteredTransactions from "./pages/FilteredTransactions";
+import WandaBirthday from "./pages/WandaBirthday";
 import { FinanceProvider } from "./context/FinanceContext";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/wallet" element={<Wallet />} />
             <Route path="/analysis" element={<Analysis />} />
+            <Route path="/wanda-birthday" element={<WandaBirthday />} />
             <Route path="/add-transaction" element={<AddTransaction />} />
             <Route path="/transactions/:date" element={<DailyTransactionsPage />} />
             <Route path="/filtered-transactions/:filterType/:filterId/:transactionType/:month/:year" element={<FilteredTransactions />} />
