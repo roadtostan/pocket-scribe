@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Heart, Gift, Sparkles, Cake, Star, Play, Pause, Volume2 } from 'lucide-react';
+import { Heart, Gift, Sparkles, Cake, Star, Play, Pause } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -46,7 +46,7 @@ const WandaBirthday = () => {
               Mbak Wanda! 🎉
             </h2>
             <p className="mx-auto max-w-2xl text-lg opacity-90">
-              Wishing you a day filled with love, laughter, and all your favorite things!
+              Semoga hari ini dipenuhi cinta, tawa, dan hal-hal yang paling kamu suka!
             </p>
           </div>
           
@@ -65,22 +65,15 @@ const WandaBirthday = () => {
               <div className="mb-8 text-center">
                 <h3 className="mb-4 flex items-center justify-center text-2xl font-bold text-foreground">
                   <Star className="mr-2 h-6 w-6 text-yellow-500" />
-                  Beautiful Memories
+                  Kenangan Indah
                   <Star className="ml-2 h-6 w-6 text-yellow-500" />
                 </h3>
                 <p className="text-muted-foreground">
-                  Special moments captured just for you
+                  Momen-momen spesial yang kami siapkan khusus untukmu
                 </p>
                 
-                {/* Audio Placeholder */}
-                <div className="mt-6 mx-auto max-w-md p-6 rounded-lg bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 border-2 border-dashed border-muted-foreground/30">
-                  <div className="flex items-center justify-center mb-3">
-                    <Volume2 className="h-8 w-8 text-muted-foreground/50" />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">Audio Message Placeholder</p>
-                  <p className="text-xs text-muted-foreground/70">Add your special birthday audio message here</p>
-                  
-                  {/* Audio element */}
+                {/* Elemen audio tersembunyi untuk kontrol play/pause */}
+                <div className="sr-only">
                   <audio
                     ref={audioRef}
                     onEnded={() => setIsPlaying(false)}
@@ -88,7 +81,7 @@ const WandaBirthday = () => {
                     onPlay={() => setIsPlaying(true)}
                   >
                     <source src={selamatUltahAudio} type="audio/mpeg" />
-                    Your browser does not support the audio element.
+                    Browser Anda tidak mendukung elemen audio.
                   </audio>
                 </div>
               </div>
@@ -101,7 +94,7 @@ const WandaBirthday = () => {
                   >
                     <img 
                       src={photo} 
-                      alt={`Birthday memory ${index + 1}`}
+                      alt={`Kenangan ulang tahun ${index + 1}`}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -119,21 +112,17 @@ const WandaBirthday = () => {
                   <Cake className="h-16 w-16 text-pink-500" />
                 </div>
                 <h3 className="mb-6 text-3xl font-bold text-foreground">
-                  A Special Day for a Special Person
+                  Hari Spesial untuk Orang Spesial
                 </h3>
                 <div className="mx-auto max-w-3xl space-y-4 text-lg text-muted-foreground">
                   <p>
-                    Today we celebrate you, Wanda! Your kindness, warmth, and beautiful spirit 
-                    light up every room you enter. On this special day, we want you to know 
-                    how much joy you bring to everyone around you.
+                    Hari ini kita merayakanmu, Wanda! Kebaikan, kehangatan, dan semangatmu selalu membuat setiap ruangan terasa lebih hidup. Di hari spesial ini, semoga kamu benar-benar merasakan betapa berharganya dirimu bagi kami.
                   </p>
                   <p>
-                    May this new year of your life be filled with endless adventures, 
-                    sweet surprises, and all the happiness your heart can hold. 
-                    You deserve nothing but the very best!
+                    Semoga tahun baru dalam hidupmu dipenuhi petualangan seru, kejutan manis, dan kebahagiaan yang melimpah. Kamu pantas mendapatkan yang terbaik.
                   </p>
                   <p className="text-xl font-semibold text-primary">
-                    Here's to another year of being absolutely amazing! 🌟
+                    Untuk satu tahun lagi menjadi pribadi yang luar biasa! 🌟
                   </p>
                 </div>
               </div>
@@ -145,33 +134,33 @@ const WandaBirthday = () => {
             {[
               {
                 icon: Heart,
-                title: "Love & Joy",
-                message: "May your day be filled with love from family and friends, and may joy follow you wherever you go."
+                title: "Cinta dan Kebahagiaan",
+                message: "Semoga harimu dipenuhi cinta dari keluarga dan teman, dan kebahagiaan selalu menyertaimu."
               },
               {
                 icon: Star,
-                title: "Dreams Come True",
-                message: "May all your dreams and wishes come true this year, and may you achieve everything you hope for."
+                title: "Mimpi yang Terwujud",
+                message: "Semoga semua harapanmu satu per satu menjadi kenyataan di tahun ini."
               },
               {
                 icon: Gift,
-                title: "Wonderful Surprises",
-                message: "May life surprise you with beautiful moments and unexpected gifts of happiness."
+                title: "Kejutan Indah",
+                message: "Semoga banyak momen tak terduga yang membawa senyum dan rasa syukur."
               },
               {
                 icon: Sparkles,
-                title: "Magical Moments",
-                message: "May every moment of your special day sparkle with magic and create lasting memories."
+                title: "Momen Magis",
+                message: "Semoga setiap detik hari ini terasa istimewa dan penuh kehangatan."
               },
               {
                 icon: Cake,
-                title: "Sweet Celebrations",
-                message: "May your birthday cake be as sweet as you are, and may the celebrations never end."
+                title: "Perayaan Manis",
+                message: "Semoga kue ulang tahunnya manis, doanya tulus, dan perayaannya tak terlupakan."
               },
               {
                 icon: Heart,
-                title: "Endless Happiness",
-                message: "May happiness be your constant companion throughout this new year of life."
+                title: "Bahagia Selalu",
+                message: "Semoga kebahagiaan menjadi teman setia di sepanjang perjalananmu."
               }
             ].map((wish, index) => (
               <Card key={index} className="group border-0 bg-white/60 backdrop-blur-sm transition-all hover:bg-white/80 hover:scale-105 dark:bg-gray-900/60 dark:hover:bg-gray-900/80">
@@ -194,11 +183,11 @@ const WandaBirthday = () => {
           <div className="mt-16 text-center">
             <div className="mx-auto max-w-2xl rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-8 text-white">
               <h3 className="mb-4 text-2xl font-bold">
-                With Love & Best Wishes 💝
+                Dengan Cinta dan Doa Terbaik 💝
               </h3>
               <p className="text-lg opacity-90">
-                Have the most wonderful birthday, Wanda! 
-                You are truly special and loved by so many.
+                Selamat ulang tahun, Wanda.
+                Semoga hari-harimu selalu dipenuhi cinta, kesehatan, dan kebahagiaan.
               </p>
               <div className="mt-6 flex justify-center space-x-2">
                 {[...Array(5)].map((_, i) => (
