@@ -208,7 +208,7 @@ const WandaBirthday = () => {
         </div>
 
         {/* Floating Audio Control Button */}
-        <div className="fixed bottom-4 right-4 z-50 md:bottom-6 md:right-6">
+        <div className="fixed bottom-24 right-4 z-50 md:bottom-6 md:right-6">
           <button
             onClick={toggleAudio}
             className="group relative h-12 w-12 rounded-full bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-gradient-end shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-romantic-primary/50 md:h-16 md:w-16"
