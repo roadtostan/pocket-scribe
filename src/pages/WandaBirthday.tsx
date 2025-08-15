@@ -69,7 +69,7 @@ const WandaBirthday = () => {
                   <Star className="ml-2 h-6 w-6 text-yellow-500" />
                 </h3>
                 <p className="text-muted-foreground">
-                  Momen-momen spesial yang kami siapkan khusus untukmu
+                  Momen spesial yang diabadikan hanya untukmu
                 </p>
                 
                 {/* Elemen audio tersembunyi untuk kontrol play/pause */}
@@ -112,17 +112,17 @@ const WandaBirthday = () => {
                   <Cake className="h-16 w-16 text-pink-500" />
                 </div>
                 <h3 className="mb-6 text-3xl font-bold text-foreground">
-                  Hari Spesial untuk Orang Spesial
+                  Untuk Wanita Terhebat dalam Hidupku
                 </h3>
                 <div className="mx-auto max-w-3xl space-y-4 text-lg text-muted-foreground">
                   <p>
-                    Hari ini kita merayakanmu, Wanda! Kebaikan, kehangatan, dan semangatmu selalu membuat setiap ruangan terasa lebih hidup. Di hari spesial ini, semoga kamu benar-benar merasakan betapa berharganya dirimu bagi kami.
+                    Sayang, hari ini aku bersyukur sekali bisa merayakan ulang tahunmu. Kehangatan senyummu, perhatianmu yang tulus, dan semangatmu selalu membuat hidupku lebih berarti.
                   </p>
                   <p>
-                    Semoga tahun baru dalam hidupmu dipenuhi petualangan seru, kejutan manis, dan kebahagiaan yang melimpah. Kamu pantas mendapatkan yang terbaik.
+                    Di hari spesial ini, aku ingin kamu tahu kalau kamu adalah anugerah terindah yang pernah Tuhan titipkan padaku. Semoga setiap langkahmu di tahun ini penuh kejutan manis, tawa yang tulus, dan mimpi-mimpi yang semakin dekat terwujud.
                   </p>
                   <p className="text-xl font-semibold text-primary">
-                    Untuk satu tahun lagi menjadi pribadi yang luar biasa! 🌟
+                    Aku mencintaimu, hari ini dan setiap hari. Selamat ulang tahun, cintaku. ❤️
                   </p>
                 </div>
               </div>
@@ -135,32 +135,32 @@ const WandaBirthday = () => {
               {
                 icon: Heart,
                 title: "Cinta dan Kebahagiaan",
-                message: "Semoga harimu dipenuhi cinta dari keluarga dan teman, dan kebahagiaan selalu menyertaimu."
+                message: "Semoga hari ini hatimu dipenuhi cinta dari orang-orang yang menyayangimu—terutama dariku—dan kebahagiaan selalu menemani langkahmu."
               },
               {
                 icon: Star,
                 title: "Mimpi yang Terwujud",
-                message: "Semoga semua harapanmu satu per satu menjadi kenyataan di tahun ini."
+                message: "Aku berdoa semua harapan yang kamu simpan di hati perlahan menjadi nyata di tahun ini."
               },
               {
                 icon: Gift,
                 title: "Kejutan Indah",
-                message: "Semoga banyak momen tak terduga yang membawa senyum dan rasa syukur."
+                message: "Semoga banyak kejutan manis datang tiba-tiba, membuatmu tersenyum dan bersyukur."
               },
               {
                 icon: Sparkles,
                 title: "Momen Magis",
-                message: "Semoga setiap detik hari ini terasa istimewa dan penuh kehangatan."
+                message: "Semoga setiap detik hari ini terasa hangat, istimewa, dan penuh cinta."
               },
               {
                 icon: Cake,
                 title: "Perayaan Manis",
-                message: "Semoga kue ulang tahunnya manis, doanya tulus, dan perayaannya tak terlupakan."
+                message: "Semoga kue ulang tahunnya selembut cintaku padamu, doa-doanya tulus, dan perayaannya selalu kamu kenang."
               },
               {
                 icon: Heart,
                 title: "Bahagia Selalu",
-                message: "Semoga kebahagiaan menjadi teman setia di sepanjang perjalananmu."
+                message: "Semoga kebahagiaan setia menemani perjalanan hidupmu, sampai kapan pun."
               }
             ].map((wish, index) => (
               <Card key={index} className="group border-0 bg-white/60 backdrop-blur-sm transition-all hover:bg-white/80 hover:scale-105 dark:bg-gray-900/60 dark:hover:bg-gray-900/80">
@@ -183,11 +183,10 @@ const WandaBirthday = () => {
           <div className="mt-16 text-center">
             <div className="mx-auto max-w-2xl rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-8 text-white">
               <h3 className="mb-4 text-2xl font-bold">
-                Dengan Cinta dan Doa Terbaik 💝
+                Dengan seluruh cinta dan doa terbaik dariku 💝
               </h3>
               <p className="text-lg opacity-90">
-                Selamat ulang tahun, Wanda.
-                Semoga hari-harimu selalu dipenuhi cinta, kesehatan, dan kebahagiaan.
+                Selamat ulang tahun, sayang. Semoga hidupmu selalu dipenuhi cinta, kesehatan, dan kebahagiaan.
               </p>
               <div className="mt-6 flex justify-center space-x-2">
                 {[...Array(5)].map((_, i) => (
