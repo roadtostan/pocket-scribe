@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Heart, Gift, Sparkles, Cake, Star, Play, Pause } from 'lucide-react';
+import { Heart, Gift, Sparkles, Cake, Star, Play, Pause, X } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -14,7 +14,42 @@ import selamatUltahAudio from '@/assets/selamatUltah.mp3';
 
 const WandaBirthday = () => {
   const [isPlaying, setIsPlaying] = useState(true);
+  const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Photo details with descriptions and dates
+  const photoDetails = [
+    {
+      description: "Hari pertama kita bertemu di kafe itu, matamu yang berbinar membuat hatiku berdebar. Senyuman manismu langsung mencuri perhatianku, dan sejak saat itu aku tahu bahwa kamu istimewa.",
+      date: "15 Februari 2023",
+      title: "Pertemuan Pertama Kita"
+    },
+    {
+      description: "Kencan pertama kita di taman bunga. Kita berjalan-jalan sambil mengobrol tentang mimpi-mimpi kita. Kamu terlihat begitu cantik di antara bunga-bunga sakura yang bermekaran.",
+      date: "28 Februari 2023", 
+      title: "Kencan Pertama di Taman"
+    },
+    {
+      description: "Momen ketika kamu pertama kali bilang 'aku sayang kamu' sambil memelukku erat. Rasanya dunia berhenti berputar, dan yang ada hanya kita berdua dalam kehangatan cinta.",
+      date: "14 Maret 2023",
+      title: "Pengakuan Cinta Pertama"
+    },
+    {
+      description: "Liburan romantis kita ke pantai. Kita menonton sunset sambil bergandengan tangan, dan aku berjanji akan selalu membuatmu bahagia seperti saat ini.",
+      date: "10 Juni 2023",
+      title: "Sunset Romantis di Pantai"
+    },
+    {
+      description: "Ulang tahun kita yang pertama merayakan bersama. Kamu membuat kue untukku dengan tanganmu sendiri, dan rasanya adalah yang termanis yang pernah aku cicipi.",
+      date: "23 Agustus 2023", 
+      title: "Perayaan Bersama Pertama"
+    },
+    {
+      description: "Momen ketika kita berdua tertidur di sofa sambil menonton film. Aku terbangun dan melihatmu tidur dengan damai di pelukanku, dan aku tahu ini adalah kebahagiaan sejati.",
+      date: "5 November 2023",
+      title: "Ketenangan dalam Pelukan"
+    }
+  ];
 
   // Auto-play audio when component mounts
   React.useEffect(() => {
@@ -100,7 +135,8 @@ const WandaBirthday = () => {
                 {[photo1, photo2, photo3, photo4, photo5, photo6].map((photo, index) => (
                   <div 
                     key={index}
-                    className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-romantic-muted to-romantic-secondary shadow-lg"
+                    className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-romantic-muted to-romantic-secondary shadow-lg cursor-pointer md:cursor-default"
+                    onClick={() => setSelectedPhoto(index)}
                   >
                     <img 
                       src={photo} 
@@ -108,6 +144,13 @@ const WandaBirthday = () => {
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-romantic-primary/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    
+                    {/* Mobile click indicator */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 md:hidden">
+                      <div className="rounded-full bg-white/90 p-2">
+                        <Heart className="h-4 w-4 text-romantic-primary" />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -206,6 +249,52 @@ const WandaBirthday = () => {
             </div>
           </div>
         </div>
+        
+        {/* Mobile Photo Modal */}
+        {selectedPhoto !== null && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 md:hidden">
+            <div className="relative max-h-full w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
+              {/* Close button */}
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                className="absolute right-3 top-3 z-10 rounded-full bg-black/20 p-2 text-white transition-colors hover:bg-black/40"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              
+              {/* Photo */}
+              <div className="aspect-square overflow-hidden">
+                <img 
+                  src={[photo1, photo2, photo3, photo4, photo5, photo6][selectedPhoto]} 
+                  alt={photoDetails[selectedPhoto].title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-romantic-primary">
+                    {photoDetails[selectedPhoto].title}
+                  </h3>
+                  <span className="text-sm text-romantic-foreground/60">
+                    {photoDetails[selectedPhoto].date}
+                  </span>
+                </div>
+                <p className="text-sm leading-relaxed text-romantic-foreground/80">
+                  {photoDetails[selectedPhoto].description}
+                </p>
+                
+                {/* Decorative hearts */}
+                <div className="mt-4 flex justify-center space-x-1">
+                  {[...Array(3)].map((_, i) => (
+                    <Heart key={i} className="h-4 w-4 animate-pulse text-romantic-accent" style={{ animationDelay: `${i * 0.3}s` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Floating Audio Control Button */}
         <div className="fixed bottom-24 right-4 z-50 md:bottom-6 md:right-6">
