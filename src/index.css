@@ -34,6 +34,16 @@
 
     --radius: 0.5rem;
 
+    /* Romantic theme colors */
+    --romantic-primary: 330 81% 60%;
+    --romantic-secondary: 316 70% 85%;
+    --romantic-accent: 340 82% 52%;
+    --romantic-background: 330 100% 98%;
+    --romantic-foreground: 330 81% 20%;
+    --romantic-muted: 330 39% 96%;
+    --romantic-gradient-start: 330 81% 60%;
+    --romantic-gradient-end: 316 70% 75%;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -87,6 +97,16 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dark mode romantic colors */
+    --romantic-primary: 330 81% 70%;
+    --romantic-secondary: 316 70% 25%;
+    --romantic-accent: 340 82% 62%;
+    --romantic-background: 330 81% 8%;
+    --romantic-foreground: 330 39% 90%;
+    --romantic-muted: 330 39% 15%;
+    --romantic-gradient-start: 330 81% 60%;
+    --romantic-gradient-end: 316 70% 45%;
   }
 }
 

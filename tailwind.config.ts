@@ -66,6 +66,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				romantic: {
+					primary: 'hsl(var(--romantic-primary))',
+					secondary: 'hsl(var(--romantic-secondary))',
+					accent: 'hsl(var(--romantic-accent))',
+					background: 'hsl(var(--romantic-background))',
+					foreground: 'hsl(var(--romantic-foreground))',
+					muted: 'hsl(var(--romantic-muted))',
+					'gradient-start': 'hsl(var(--romantic-gradient-start))',
+					'gradient-end': 'hsl(var(--romantic-gradient-end))',
+				},
 				income: '#4ADE80',
 				expense: '#F87171',
 			},

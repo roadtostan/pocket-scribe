@@ -13,8 +13,18 @@ import photo6 from '@/assets/photo-6.jpeg';
 import selamatUltahAudio from '@/assets/selamatUltah.mp3';
 
 const WandaBirthday = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Auto-play audio when component mounts
+  React.useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(() => {
+        // If autoplay fails (browser policy), set isPlaying to false
+        setIsPlaying(false);
+      });
+    }
+  }, []);
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -29,47 +39,47 @@ const WandaBirthday = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-950/20 dark:via-purple-950/20 dark:to-indigo-950/20">
+      <div className="min-h-screen bg-gradient-to-br from-romantic-background via-romantic-muted to-romantic-secondary dark:from-romantic-background dark:via-romantic-muted dark:to-romantic-secondary">
         {/* Header Section */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white">
+        <div className="relative overflow-hidden bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-gradient-end text-white">
           <div className="absolute inset-0 bg-black/10"></div>
-          <div className="relative z-10 px-6 py-16 text-center">
-            <div className="mb-6 flex justify-center space-x-4">
-              <Sparkles className="h-8 w-8 animate-pulse" />
-              <Heart className="h-8 w-8 animate-bounce text-pink-200" />
-              <Cake className="h-8 w-8 animate-pulse" />
+          <div className="relative z-10 px-4 py-12 text-center md:px-6 md:py-16">
+            <div className="mb-4 flex justify-center space-x-2 md:mb-6 md:space-x-4">
+              <Sparkles className="h-6 w-6 animate-pulse md:h-8 md:w-8" />
+              <Heart className="h-6 w-6 animate-bounce text-pink-200 md:h-8 md:w-8" />
+              <Cake className="h-6 w-6 animate-pulse md:h-8 md:w-8" />
             </div>
-            <h1 className="mb-4 text-4xl font-bold tracking-tight md:text-6xl">
+            <h1 className="mb-3 text-2xl font-bold tracking-tight md:mb-4 md:text-4xl lg:text-6xl">
               Selamat Ulang Tahun
             </h1>
-            <h2 className="mb-6 text-2xl font-light md:text-4xl">
-              Mbak Wanda! 🎉
+            <h2 className="mb-4 text-lg font-light md:mb-6 md:text-2xl lg:text-4xl">
+              Sayang ku, Wanda! 💖
             </h2>
-            <p className="mx-auto max-w-2xl text-lg opacity-90">
-              Semoga hari ini dipenuhi cinta, tawa, dan hal-hal yang paling kamu suka!
+            <p className="mx-auto max-w-2xl text-sm opacity-90 md:text-lg">
+              Semoga hari spesial ini dipenuhi cinta, kebahagiaan, dan semua hal indah yang kamu impikan, sayang
             </p>
           </div>
           
           {/* Decorative Elements */}
-          <div className="absolute -top-4 left-4 h-16 w-16 rounded-full bg-yellow-300/30 animate-bounce"></div>
-          <div className="absolute top-8 right-8 h-12 w-12 rounded-full bg-pink-300/30 animate-pulse"></div>
-          <div className="absolute bottom-4 left-1/4 h-8 w-8 rounded-full bg-purple-300/30 animate-bounce delay-75"></div>
-          <div className="absolute bottom-8 right-1/3 h-10 w-10 rounded-full bg-indigo-300/30 animate-pulse delay-150"></div>
+          <div className="absolute -top-2 left-2 h-8 w-8 rounded-full bg-pink-300/30 animate-bounce md:-top-4 md:left-4 md:h-16 md:w-16"></div>
+          <div className="absolute top-4 right-4 h-6 w-6 rounded-full bg-rose-300/30 animate-pulse md:top-8 md:right-8 md:h-12 md:w-12"></div>
+          <div className="absolute bottom-2 left-1/4 h-4 w-4 rounded-full bg-pink-400/30 animate-bounce delay-75 md:bottom-4 md:h-8 md:w-8"></div>
+          <div className="absolute bottom-4 right-1/3 h-5 w-5 rounded-full bg-rose-400/30 animate-pulse delay-150 md:bottom-8 md:h-10 md:w-10"></div>
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
           {/* Photo Gallery Section */}
-          <Card className="mb-12 overflow-hidden border-0 bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
-            <CardContent className="p-8">
-              <div className="mb-8 text-center">
-                <h3 className="mb-4 flex items-center justify-center text-2xl font-bold text-foreground">
-                  <Star className="mr-2 h-6 w-6 text-yellow-500" />
-                  Kenangan Indah
-                  <Star className="ml-2 h-6 w-6 text-yellow-500" />
+          <Card className="mb-8 overflow-hidden border-0 bg-white/80 backdrop-blur-sm dark:bg-gray-900/80 md:mb-12">
+            <CardContent className="p-4 md:p-8">
+              <div className="mb-6 text-center md:mb-8">
+                <h3 className="mb-3 flex items-center justify-center text-lg font-bold text-romantic-foreground md:mb-4 md:text-2xl">
+                  <Star className="mr-2 h-5 w-5 text-romantic-accent md:h-6 md:w-6" />
+                  Kenangan Indah Kita
+                  <Star className="ml-2 h-5 w-5 text-romantic-accent md:h-6 md:w-6" />
                 </h3>
-                <p className="text-muted-foreground">
-                  Momen spesial yang diabadikan hanya untukmu
+                <p className="text-sm text-romantic-foreground/70 md:text-base">
+                  Setiap momen bersamamu adalah harta yang tak ternilai, sayang
                 </p>
                 
                 {/* Elemen audio tersembunyi untuk kontrol play/pause */}
@@ -86,18 +96,18 @@ const WandaBirthday = () => {
                 </div>
               </div>
               
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-3 md:gap-6 grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
                 {[photo1, photo2, photo3, photo4, photo5, photo6].map((photo, index) => (
                   <div 
                     key={index}
-                    className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 shadow-lg"
+                    className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-romantic-muted to-romantic-secondary shadow-lg"
                   >
                     <img 
                       src={photo} 
-                      alt={`Kenangan ulang tahun ${index + 1}`}
+                      alt={`Kenangan indah bersama ${index + 1}`}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-romantic-primary/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
                   </div>
                 ))}
               </div>
@@ -105,24 +115,24 @@ const WandaBirthday = () => {
           </Card>
 
           {/* Birthday Message */}
-          <Card className="mb-12 border-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 backdrop-blur-sm">
-            <CardContent className="p-8">
+          <Card className="mb-8 border-0 bg-gradient-to-r from-romantic-primary/10 via-romantic-accent/10 to-romantic-secondary/20 backdrop-blur-sm md:mb-12">
+            <CardContent className="p-4 md:p-8">
               <div className="text-center">
-                <div className="mb-6 flex justify-center">
-                  <Cake className="h-16 w-16 text-pink-500" />
+                <div className="mb-4 flex justify-center md:mb-6">
+                  <Cake className="h-12 w-12 text-romantic-primary md:h-16 md:w-16" />
                 </div>
-                <h3 className="mb-6 text-3xl font-bold text-foreground">
-                  Untuk Wanita Terhebat dalam Hidupku
+                <h3 className="mb-4 text-xl font-bold text-romantic-foreground md:mb-6 md:text-3xl">
+                  Untuk Cinta Hidupku
                 </h3>
-                <div className="mx-auto max-w-3xl space-y-4 text-lg text-muted-foreground">
+                <div className="mx-auto max-w-3xl space-y-3 text-sm text-romantic-foreground/80 md:space-y-4 md:text-lg">
                   <p>
-                    Sayang, hari ini aku bersyukur sekali bisa merayakan ulang tahunmu. Kehangatan senyummu, perhatianmu yang tulus, dan semangatmu selalu membuat hidupku lebih berarti.
+                    Sayang, hari ini hatiku dipenuhi rasa syukur karena bisa merayakan hari spesialmu. Senyummu yang hangat, pelukan lembutmu, dan cintamu yang tulus selalu menjadi alasan aku bersemangat setiap hari.
                   </p>
                   <p>
-                    Di hari spesial ini, aku ingin kamu tahu kalau kamu adalah anugerah terindah yang pernah Tuhan titipkan padaku. Semoga setiap langkahmu di tahun ini penuh kejutan manis, tawa yang tulus, dan mimpi-mimpi yang semakin dekat terwujud.
+                    Di hari istimewa ini, aku ingin kamu tahu bahwa kamu adalah hadiah terindah dalam hidupku. Semoga di tahun yang baru ini, setiap langkahmu dipenuhi kebahagiaan, setiap mimpimu semakin dekat menjadi kenyataan, dan cinta kita semakin kuat selamanya.
                   </p>
-                  <p className="text-xl font-semibold text-primary">
-                    Aku mencintaimu, hari ini dan setiap hari. Selamat ulang tahun, cintaku. ❤️
+                  <p className="text-base font-semibold text-romantic-primary md:text-xl">
+                    Aku mencintaimu dengan segenap hatiku. Selamat ulang tahun, bidadariku. 💕
                   </p>
                 </div>
               </div>
@@ -130,48 +140,48 @@ const WandaBirthday = () => {
           </Card>
 
           {/* Birthday Wishes Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: Heart,
-                title: "Cinta dan Kebahagiaan",
-                message: "Semoga hari ini hatimu dipenuhi cinta dari orang-orang yang menyayangimu—terutama dariku—dan kebahagiaan selalu menemani langkahmu."
+                title: "Cinta Abadi",
+                message: "Semoga cintaku padamu tumbuh semakin dalam setiap hari, dan hatimmu selalu dipenuhi kehangatan kasih sayang yang tulus."
               },
               {
                 icon: Star,
-                title: "Mimpi yang Terwujud",
-                message: "Aku berdoa semua harapan yang kamu simpan di hati perlahan menjadi nyata di tahun ini."
+                title: "Impian Terwujud",
+                message: "Aku akan selalu mendukung setiap mimpimu, sayang. Semoga semua yang kamu harapkan menjadi kenyataan indah."
               },
               {
                 icon: Gift,
-                title: "Kejutan Indah",
-                message: "Semoga banyak kejutan manis datang tiba-tiba, membuatmu tersenyum dan bersyukur."
+                title: "Kejutan Manis",
+                message: "Semoga setiap hari membawa kejutan kecil yang membuatmu tersenyum, seperti cara kamu membuatku bahagia setiap saat."
               },
               {
                 icon: Sparkles,
-                title: "Momen Magis",
-                message: "Semoga setiap detik hari ini terasa hangat, istimewa, dan penuh cinta."
+                title: "Momen Berkilau",
+                message: "Bersamamu, setiap detik terasa istimewa. Semoga hari ini dan seterusnya penuh dengan momen-momen ajaib kita berdua."
               },
               {
                 icon: Cake,
-                title: "Perayaan Manis",
-                message: "Semoga kue ulang tahunnya selembut cintaku padamu, doa-doanya tulus, dan perayaannya selalu kamu kenang."
+                title: "Perayaan Cinta",
+                message: "Hari ini bukan hanya ulang tahunmu, tapi perayaan betapa beruntungnya aku memilikimu dalam hidup."
               },
               {
                 icon: Heart,
-                title: "Bahagia Selalu",
-                message: "Semoga kebahagiaan setia menemani perjalanan hidupmu, sampai kapan pun."
+                title: "Kebahagiaan Selamanya",
+                message: "Aku berjanji akan selalu berusaha membuatmu bahagia, hari ini, besok, dan selamanya."
               }
             ].map((wish, index) => (
               <Card key={index} className="group border-0 bg-white/60 backdrop-blur-sm transition-all hover:bg-white/80 hover:scale-105 dark:bg-gray-900/60 dark:hover:bg-gray-900/80">
-                <CardContent className="p-6 text-center">
-                  <div className="mb-4 flex justify-center">
-                    <wish.icon className="h-10 w-10 text-purple-500 transition-colors group-hover:text-pink-500" />
+                <CardContent className="p-4 text-center md:p-6">
+                  <div className="mb-3 flex justify-center md:mb-4">
+                    <wish.icon className="h-8 w-8 text-romantic-primary transition-colors group-hover:text-romantic-accent md:h-10 md:w-10" />
                   </div>
-                  <h4 className="mb-3 text-lg font-semibold text-foreground">
+                  <h4 className="mb-2 text-base font-semibold text-romantic-foreground md:mb-3 md:text-lg">
                     {wish.title}
                   </h4>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-romantic-foreground/70 md:text-sm">
                     {wish.message}
                   </p>
                 </CardContent>
@@ -180,17 +190,17 @@ const WandaBirthday = () => {
           </div>
 
           {/* Footer Message */}
-          <div className="mt-16 text-center">
-            <div className="mx-auto max-w-2xl rounded-lg bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-8 text-white">
-              <h3 className="mb-4 text-2xl font-bold">
-                Dengan seluruh cinta dan doa terbaik dariku 💝
+          <div className="mt-12 text-center md:mt-16">
+            <div className="mx-auto max-w-2xl rounded-lg bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-gradient-end p-6 text-white md:p-8">
+              <h3 className="mb-3 text-lg font-bold md:mb-4 md:text-2xl">
+                Dengan segenap cinta dalam hatiku 💖
               </h3>
-              <p className="text-lg opacity-90">
-                Selamat ulang tahun, sayang. Semoga hidupmu selalu dipenuhi cinta, kesehatan, dan kebahagiaan.
+              <p className="text-sm opacity-90 md:text-lg">
+                Selamat ulang tahun, cinta hidupku. Semoga Allah selalu melindungi dan membahagiakan hidupmu.
               </p>
-              <div className="mt-6 flex justify-center space-x-2">
+              <div className="mt-4 flex justify-center space-x-1 md:mt-6 md:space-x-2">
                 {[...Array(5)].map((_, i) => (
-                  <Heart key={i} className="h-6 w-6 animate-pulse text-pink-200" style={{ animationDelay: `${i * 0.2}s` }} />
+                  <Heart key={i} className="h-5 w-5 animate-pulse text-pink-200 md:h-6 md:w-6" style={{ animationDelay: `${i * 0.2}s` }} />
                 ))}
               </div>
             </div>
@@ -198,23 +208,23 @@ const WandaBirthday = () => {
         </div>
 
         {/* Floating Audio Control Button */}
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-4 right-4 z-50 md:bottom-6 md:right-6">
           <button
             onClick={toggleAudio}
-            className="group relative h-16 w-16 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-purple-300/50"
+            className="group relative h-12 w-12 rounded-full bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-gradient-end shadow-xl transition-all duration-300 hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-romantic-primary/50 md:h-16 md:w-16"
           >
             <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div className="flex h-full w-full items-center justify-center">
               {isPlaying ? (
-                <Pause className="h-6 w-6 text-white" />
+                <Pause className="h-5 w-5 text-white md:h-6 md:w-6" />
               ) : (
-                <Play className="h-6 w-6 text-white translate-x-0.5" />
+                <Play className="h-5 w-5 text-white translate-x-0.5 md:h-6 md:w-6" />
               )}
             </div>
             
             {/* Pulse animation when playing */}
             {isPlaying && (
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-ping opacity-30"></div>
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-romantic-primary via-romantic-accent to-romantic-gradient-end animate-ping opacity-30"></div>
             )}
           </button>
         </div>
