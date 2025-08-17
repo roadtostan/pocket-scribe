@@ -1,8 +1,7 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { Heart, Gift, Sparkles, Cake, Star, Play, Pause, X } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
-import confetti from 'canvas-confetti';
 
 // Import assets
 import photo1 from '@/assets/photo-1.jpeg';
@@ -52,50 +51,6 @@ const WandaBirthday = () => {
     }
   ];
 
-  // Confetti function
-  const fireConfetti = useCallback(() => {
-    const count = 200;
-    const defaults = {
-      origin: { y: 0.7 }
-    };
-
-    function fire(particleRatio: number, opts: confetti.Options) {
-      confetti({
-        ...defaults,
-        ...opts,
-        particleCount: Math.floor(count * particleRatio)
-      });
-    }
-
-    fire(0.25, {
-      spread: 26,
-      startVelocity: 55,
-      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
-    });
-    fire(0.2, {
-      spread: 60,
-      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
-    });
-    fire(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8,
-      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
-    });
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2,
-      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
-    });
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 45,
-      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
-    });
-  }, []);
-
   // Auto-play audio when component mounts with better browser support
   React.useEffect(() => {
     const tryAutoPlay = async () => {
@@ -144,9 +99,6 @@ const WandaBirthday = () => {
       }
       setIsPlaying(!isPlaying);
     }
-    
-    // Fire confetti on any audio button interaction
-    fireConfetti();
   };
 
   return (
@@ -215,10 +167,7 @@ const WandaBirthday = () => {
                   <div 
                     key={index}
                     className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-romantic-muted to-romantic-secondary shadow-lg cursor-pointer md:cursor-default"
-                    onClick={() => {
-                      setSelectedPhoto(index);
-                      fireConfetti();
-                    }}
+                    onClick={() => setSelectedPhoto(index)}
                   >
                     <img 
                       src={photo} 

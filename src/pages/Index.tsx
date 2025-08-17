@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '@/components/Layout';
 import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import CalendarView from '@/components/CalendarView';
+import confetti from 'canvas-confetti';
 
 const Index = () => {
   const { 
@@ -31,6 +32,55 @@ const Index = () => {
   const [isEditingBookName, setIsEditingBookName] = useState(false);
   const [bookName, setBookName] = useState(currentBook.name);
   const navigate = useNavigate();
+  
+  // Confetti function for birthday surprise
+  const fireConfetti = useCallback(() => {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 }
+    };
+
+    function fire(particleRatio: number, opts: confetti.Options) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
+      });
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.2, {
+      spread: 60,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+  }, []);
+
+  const handleBirthdayClick = () => {
+    fireConfetti();
+    setTimeout(() => navigate('/wanda-birthday'), 800); // Small delay to show confetti
+  };
   
   useEffect(() => {
     if (currentBook?.id) {
@@ -76,7 +126,7 @@ const Index = () => {
                 <Heart className="animate-pulse text-white" size={20} />
               </div>
               <Button 
-                onClick={() => navigate('/wanda-birthday')}
+                onClick={handleBirthdayClick}
                 className="w-full mt-3 bg-white/20 hover:bg-white/30 text-white font-semibold py-2 border border-white/30 backdrop-blur-sm transition-all duration-300 transform hover:scale-105"
               >
                 ✨ Click Here for the Surprise! ✨
