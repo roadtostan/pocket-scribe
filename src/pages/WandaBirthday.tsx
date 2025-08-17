@@ -20,34 +20,34 @@ const WandaBirthday = () => {
   // Photo details with descriptions and dates
   const photoDetails = [
     {
-      description: "Hari pertama kita bertemu di kafe itu, matamu yang berbinar membuat hatiku berdebar. Senyuman manismu langsung mencuri perhatianku, dan sejak saat itu aku tahu bahwa kamu istimewa.",
-      date: "15 Februari 2023",
-      title: "Pertemuan Pertama Kita"
+      description: "Momen terakhir bertemu kembali untuk melaksanakan latsar CPNS.",
+      date: "Minggu, 13 Juli 2025",
+      title: "Wizzmie Matraman"
     },
     {
-      description: "Kencan pertama kita di taman bunga. Kita berjalan-jalan sambil mengobrol tentang mimpi-mimpi kita. Kamu terlihat begitu cantik di antara bunga-bunga sakura yang bermekaran.",
-      date: "28 Februari 2023", 
-      title: "Kencan Pertama di Taman"
+      description: "Mengantar untuk pertemuan terakhir setelah wisuda sebelum penempatan.",
+      date: "Kamis, 26 September 2024", 
+      title: "Stasiun Gambir"
     },
     {
-      description: "Momen ketika kamu pertama kali bilang 'aku sayang kamu' sambil memelukku erat. Rasanya dunia berhenti berputar, dan yang ada hanya kita berdua dalam kehangatan cinta.",
-      date: "14 Maret 2023",
-      title: "Pengakuan Cinta Pertama"
+      description: "Momen kencan terakhir sebelum perpisahan untuk OJT sebelum penempatan.",
+      date: "Selasa, 24 September 2024",
+      title: "Astha District 8"
     },
     {
-      description: "Liburan romantis kita ke pantai. Kita menonton sunset sambil bergandengan tangan, dan aku berjanji akan selalu membuatmu bahagia seperti saat ini.",
-      date: "10 Juni 2023",
-      title: "Sunset Romantis di Pantai"
+      description: "Pembekalan untuk OJT selama menunggu informasi penempatan.",
+      date: "Rabu, 18 September 2024",
+      title: "Auditorium POLSTAT STIS"
     },
     {
-      description: "Ulang tahun kita yang pertama merayakan bersama. Kamu membuat kue untukku dengan tanganmu sendiri, dan rasanya adalah yang termanis yang pernah aku cicipi.",
-      date: "23 Agustus 2023", 
-      title: "Perayaan Bersama Pertama"
+      description: "Nonton konser bersama Tiara Andini dan Armada di jiexpo Kemayoran.",
+      date: "Sabtu, 7 September 2024", 
+      title: "HUBSPACE 2024"
     },
     {
-      description: "Momen ketika kita berdua tertidur di sofa sambil menonton film. Aku terbangun dan melihatmu tidur dengan damai di pelukanku, dan aku tahu ini adalah kebahagiaan sejati.",
-      date: "5 November 2023",
-      title: "Ketenangan dalam Pelukan"
+      description: "Foto berdua setelah sidang skripsi Wanda.",
+      date: "Kamis, 20 Juni 2024",
+      title: "Basement POLSTAT STIS"
     }
   ];
 
@@ -172,7 +172,7 @@ const WandaBirthday = () => {
                     Sayang, hari ini hatiku dipenuhi rasa syukur karena bisa merayakan hari spesialmu. Senyummu yang hangat, pelukan lembutmu, dan cintamu yang tulus selalu menjadi alasan aku bersemangat setiap hari.
                   </p>
                   <p>
-                    Di hari istimewa ini, aku ingin kamu tahu bahwa kamu adalah hadiah terindah dalam hidupku. Semoga di tahun yang baru ini, setiap langkahmu dipenuhi kebahagiaan, setiap mimpimu semakin dekat menjadi kenyataan, dan cinta kita semakin kuat selamanya.
+                    Di hari istimewa ini, aku ingin kamu tahu bahwa kamu adalah hadiah terindah dalam hidupku. Semoga di usia yang baru ini, setiap langkahmu dipenuhi kebahagiaan, setiap mimpimu semakin dekat menjadi kenyataan, dan cinta kita semakin kuat selamanya.
                   </p>
                   <p className="text-base font-semibold text-romantic-primary md:text-xl">
                     Aku mencintaimu dengan segenap hatiku. Selamat ulang tahun, bidadariku. 💕
@@ -188,7 +188,7 @@ const WandaBirthday = () => {
               {
                 icon: Heart,
                 title: "Cinta Abadi",
-                message: "Semoga cintaku padamu tumbuh semakin dalam setiap hari, dan hatimmu selalu dipenuhi kehangatan kasih sayang yang tulus."
+                message: "Semoga cintaku padamu tumbuh semakin dalam setiap hari, dan hatimu selalu dipenuhi kehangatan kasih sayang yang tulus."
               },
               {
                 icon: Star,
@@ -208,7 +208,7 @@ const WandaBirthday = () => {
               {
                 icon: Cake,
                 title: "Perayaan Cinta",
-                message: "Hari ini bukan hanya ulang tahunmu, tapi perayaan betapa beruntungnya aku memilikimu dalam hidup."
+                message: "Hari ini bukan hanya ulang tahunmu, tapi perayaan betapa beruntungnya aku memilikimu dalam hidupku."
               },
               {
                 icon: Heart,
@@ -239,7 +239,7 @@ const WandaBirthday = () => {
                 Dengan segenap cinta dalam hatiku 💖
               </h3>
               <p className="text-sm opacity-90 md:text-lg">
-                Selamat ulang tahun, cinta hidupku. Semoga Allah selalu melindungi dan membahagiakan hidupmu.
+                Selamat ulang tahun, cinta hidupku. Semoga Tuhan selalu melindungi dan membahagiakan hidupmu.
               </p>
               <div className="mt-4 flex justify-center space-x-1 md:mt-6 md:space-x-2">
                 {[...Array(5)].map((_, i) => (
