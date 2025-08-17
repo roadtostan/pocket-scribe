@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Heart, Gift, Sparkles, Cake, Star, Play, Pause, X } from 'lucide-react';
 import Layout from '@/components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
+import confetti from 'canvas-confetti';
 
 // Import assets
 import photo1 from '@/assets/photo-1.jpeg';
@@ -51,14 +52,87 @@ const WandaBirthday = () => {
     }
   ];
 
-  // Auto-play audio when component mounts
-  React.useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {
-        // If autoplay fails (browser policy), set isPlaying to false
-        setIsPlaying(false);
+  // Confetti function
+  const fireConfetti = useCallback(() => {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 }
+    };
+
+    function fire(particleRatio: number, opts: confetti.Options) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
       });
     }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.2, {
+      spread: 60,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+      colors: ['#ff69b4', '#ff1493', '#ffc0cb', '#dc143c']
+    });
+  }, []);
+
+  // Auto-play audio when component mounts with better browser support
+  React.useEffect(() => {
+    const tryAutoPlay = async () => {
+      if (audioRef.current) {
+        try {
+          audioRef.current.muted = false;
+          audioRef.current.volume = 0.7;
+          audioRef.current.loop = true;
+          
+          // Try to play
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.log('Autoplay failed, user interaction required');
+          setIsPlaying(false);
+          
+          // Add event listener for first user interaction
+          const enableAutoPlay = async () => {
+            if (audioRef.current) {
+              try {
+                await audioRef.current.play();
+                setIsPlaying(true);
+                document.removeEventListener('click', enableAutoPlay);
+                document.removeEventListener('touchstart', enableAutoPlay);
+              } catch (e) {
+                console.log('Play failed even after user interaction');
+              }
+            }
+          };
+          
+          document.addEventListener('click', enableAutoPlay, { once: true });
+          document.addEventListener('touchstart', enableAutoPlay, { once: true });
+        }
+      }
+    };
+    
+    tryAutoPlay();
   }, []);
 
   const toggleAudio = () => {
@@ -70,6 +144,9 @@ const WandaBirthday = () => {
       }
       setIsPlaying(!isPlaying);
     }
+    
+    // Fire confetti on any audio button interaction
+    fireConfetti();
   };
 
   return (
@@ -124,6 +201,8 @@ const WandaBirthday = () => {
                     onEnded={() => setIsPlaying(false)}
                     onPause={() => setIsPlaying(false)}
                     onPlay={() => setIsPlaying(true)}
+                    preload="auto"
+                    playsInline
                   >
                     <source src={selamatUltahAudio} type="audio/mpeg" />
                     Browser Anda tidak mendukung elemen audio.
@@ -136,7 +215,10 @@ const WandaBirthday = () => {
                   <div 
                     key={index}
                     className="group relative aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-romantic-muted to-romantic-secondary shadow-lg cursor-pointer md:cursor-default"
-                    onClick={() => setSelectedPhoto(index)}
+                    onClick={() => {
+                      setSelectedPhoto(index);
+                      fireConfetti();
+                    }}
                   >
                     <img 
                       src={photo} 
