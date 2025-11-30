@@ -22,7 +22,16 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 py-3 px-4">
         <div className="container max-w-5xl mx-auto flex justify-between items-center">
-          <h1 className="text-lg font-semibold text-gray-800">Pocket Scribe</h1>
+          <div className="flex items-center space-x-2">
+            <img
+              src="/favicon.ico"
+              alt="Pocket Scribe Logo"
+              className="w-6 h-6"
+            />
+            <h1 className="text-lg font-semibold text-gray-800">
+              Pocket Scribe
+            </h1>
+          </div>
           {user && (
             <Button variant="ghost" size="sm" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
