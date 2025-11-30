@@ -1,15 +1,36 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Book, Wallet, BarChart2 } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Book, Wallet, BarChart2, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFinance } from '@/context/FinanceContext';
+import { Button } from '@/components/ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout = ({ children }: LayoutProps) => {
+  const { signOut, user } = useFinance();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-200 py-3 px-4">
+        <div className="container max-w-5xl mx-auto flex justify-between items-center">
+          <h1 className="text-lg font-semibold text-gray-800">Finance Tracker</h1>
+          {user && (
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          )}
+        </div>
+      </header>
       <main className="container max-w-5xl mx-auto pb-20">
         {children}
       </main>

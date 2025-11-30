@@ -1,6 +1,8 @@
 
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
@@ -63,6 +65,9 @@ type FinanceContextType = {
   books: BookType[];
   currentBook: BookType;
   selectedDate: Date;
+  user: User | null;
+  session: Session | null;
+  signOut: () => Promise<void>;
   
   addTransaction: (transaction: Omit<TransactionType, 'id' | 'bookId'>) => void;
   deleteTransaction: (id: string) => void;
@@ -96,58 +101,89 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   const [currentBook, setCurrentBook] = useState<BookType>({ id: '1', name: 'Personal Finance' });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: booksData, error: booksError } = await supabase
-          .from('books')
-          .select('*');
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
         
-        if (booksError) throw booksError;
-        
-        if (booksData && booksData.length > 0) {
-          const mappedBooks = booksData.map(book => ({
-            id: book.id,
-            name: book.name
-          }));
-          
-          setBooks(mappedBooks);
-          setCurrentBook(mappedBooks[0]);
-          
-          const bookId = mappedBooks[0].id;
-          
-          await Promise.all([
-            fetchCategoriesForBook(bookId),
-            fetchAccountsForBook(bookId),
-            fetchMembersForBook(bookId),
-            fetchTransactionsForBook(bookId)
-          ]);
+        // Defer data fetching to avoid blocking auth state updates
+        if (session?.user) {
+          setTimeout(() => {
+            fetchData();
+          }, 0);
         } else {
-          const { data: newBook, error: createBookError } = await supabase
-            .from('books')
-            .insert({ name: 'Personal Finance' })
-            .select()
-            .single();
-            
-          if (createBookError) throw createBookError;
-          
-          if (newBook) {
-            const mappedBook = { id: newBook.id, name: newBook.name };
-            setBooks([mappedBook]);
-            setCurrentBook(mappedBook);
-            await initializeDefaultData(newBook.id);
-          }
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
+      }
+    );
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchData();
+      } else {
         setLoading(false);
       }
-    };
+    });
 
-    fetchData();
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const { data: booksData, error: booksError } = await supabase
+        .from('books')
+        .select('*');
+      
+      if (booksError) throw booksError;
+      
+      if (booksData && booksData.length > 0) {
+        const mappedBooks = booksData.map(book => ({
+          id: book.id,
+          name: book.name
+        }));
+        
+        setBooks(mappedBooks);
+        setCurrentBook(mappedBooks[0]);
+        
+        const bookId = mappedBooks[0].id;
+        
+        await Promise.all([
+          fetchCategoriesForBook(bookId),
+          fetchAccountsForBook(bookId),
+          fetchMembersForBook(bookId),
+          fetchTransactionsForBook(bookId)
+        ]);
+      } else {
+        const { data: newBook, error: createBookError } = await supabase
+          .from('books')
+          .insert({ name: 'Personal Finance' })
+          .select()
+          .single();
+          
+        if (createBookError) throw createBookError;
+        
+        if (newBook) {
+          const mappedBook = { id: newBook.id, name: newBook.name };
+          setBooks([mappedBook]);
+          setCurrentBook(mappedBook);
+          await initializeDefaultData(newBook.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchTransactionsForBook = useCallback(async (bookId: string) => {
     try {
@@ -747,6 +783,10 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     }
   };
 
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   const value = {
     transactions,
     categories,
@@ -755,6 +795,9 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     books,
     currentBook,
     selectedDate,
+    user,
+    session,
+    signOut,
     addTransaction,
     deleteTransaction,
     addCategory,
