@@ -12,6 +12,8 @@ import AddTransaction from "./pages/AddTransaction";
 import DailyTransactionsPage from "./pages/DailyTransactions";
 import FilteredTransactions from "./pages/FilteredTransactions";
 import WandaBirthday from "./pages/WandaBirthday";
+import Auth from "./pages/Auth";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { FinanceProvider } from "./context/FinanceContext";
 
 const queryClient = new QueryClient();
@@ -24,13 +26,14 @@ const App = () => (
       <FinanceProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/wallet" element={<Wallet />} />
-            <Route path="/analysis" element={<Analysis />} />
-            <Route path="/wanda-birthday" element={<WandaBirthday />} />
-            <Route path="/add-transaction" element={<AddTransaction />} />
-            <Route path="/transactions/:date" element={<DailyTransactionsPage />} />
-            <Route path="/filtered-transactions/:filterType/:filterId/:transactionType/:month/:year" element={<FilteredTransactions />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+            <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+            <Route path="/wanda-birthday" element={<ProtectedRoute><WandaBirthday /></ProtectedRoute>} />
+            <Route path="/add-transaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+            <Route path="/transactions/:date" element={<ProtectedRoute><DailyTransactionsPage /></ProtectedRoute>} />
+            <Route path="/filtered-transactions/:filterType/:filterId/:transactionType/:month/:year" element={<ProtectedRoute><FilteredTransactions /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
