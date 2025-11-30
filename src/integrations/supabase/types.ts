@@ -272,10 +272,7 @@ export type Database = {
         Args: { account_id_param: string; amount_param: number }
         Returns: number
       }
-      user_owns_book: {
-        Args: { book_id_param: string }
-        Returns: boolean
-      }
+      user_owns_book: { Args: { book_id_param: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
