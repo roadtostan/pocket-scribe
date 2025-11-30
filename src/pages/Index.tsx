@@ -108,7 +108,7 @@ const Index = () => {
   return (
     <Layout>
       <div className="pt-2 pb-20">
-        {/* Birthday Banner */}
+        {/* Birthday Banner 
         <div className="mb-4 mx-4 relative overflow-hidden">
           <Card className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white border-0 shadow-lg animate-pulse">
             <CardContent className="p-4">
@@ -134,6 +134,8 @@ const Index = () => {
             </CardContent>
           </Card>
         </div>
+        */}
+        
         <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white mb-4">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
