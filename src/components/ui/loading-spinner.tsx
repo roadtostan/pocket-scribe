@@ -1,48 +1,60 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Loader } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface LoadingSpinnerProps {
-  label?: string;
+  className?: string;
   size?: number;
+  label?: string;
 }
 
 export function LoadingSpinner({
-  label = "Loading...",
-  size = 40
+  className,
+  size = 28,
+  label = "Loading"
 }: LoadingSpinnerProps) {
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+    }, 450);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center h-full w-full">
-      <svg
-        className="animate-spin text-primary"
-        width={size}
-        height={size}
-        viewBox="0 0 50 50"
+      <motion.div
+        initial={{ opacity: 0.4, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          repeat: Infinity,
+          repeatType: "reverse",
+          duration: 0.8,
+          ease: "easeInOut",
+        }}
       >
-        <circle
-          className="opacity-25"
-          cx="25"
-          cy="25"
-          r="20"
-          stroke="currentColor"
-          strokeWidth="5"
-          fill="none"
+        <Loader
+          className={cn("animate-spin text-primary drop-shadow-md", className)}
+          size={size}
         />
-        <circle
-          className="opacity-75"
-          cx="25"
-          cy="25"
-          r="20"
-          stroke="currentColor"
-          strokeWidth="5"
-          strokeLinecap="round"
-          fill="none"
-          strokeDasharray="90"
-          strokeDashoffset="60"
-        />
-      </svg>
+      </motion.div>
 
-      <p className="text-sm text-muted-foreground mt-3 tracking-wide">
+      <motion.p
+        className="text-sm text-muted-foreground mt-3 tracking-wide"
+        initial={{ opacity: 0.6 }}
+        animate={{ opacity: 1 }}
+        transition={{
+          repeat: Infinity,
+          repeatType: "reverse",
+          duration: 1.2,
+          ease: "easeInOut",
+        }}
+      >
         {label}
-      </p>
+        <span className="inline-block w-3 text-center">{dots}</span>
+      </motion.p>
     </div>
   );
 }
