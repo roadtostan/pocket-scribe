@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { motion } from "framer-motion";
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -54,14 +55,34 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Pocket Scribe
-          </CardTitle>
-          <CardDescription className="text-center">
-            Sign in to access your pockets
-          </CardDescription>
-        </CardHeader>
+        <CardHeader className="space-y-3 flex flex-col items-center">
+          <motion.img
+              src="/favicon.ico" alt="Logo"
+              className="w-12 h-12 mb-1"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{
+                           duration: 0.4,
+                           ease: "easeOut"
+                           }}
+          />
+          <motion.h1
+              className="text-2xl font-bold text-center"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05, duration: 0.35 }}
+           >
+              Pocket Scribe
+          </motion.h1>
+          <motion.p
+              className="text-center text-gray-500"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.35 }}
+           >
+              Sign in to access your pockets
+          </motion.p>
+        </CardHeader>                                                           
 
         <CardContent>
           <form onSubmit={handleSignIn} className="space-y-4">
