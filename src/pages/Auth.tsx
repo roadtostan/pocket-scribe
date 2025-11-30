@@ -116,17 +116,17 @@ const Auth = () => {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Finance Tracker
+            Pocket Scribe
           </CardTitle>
           <CardDescription className="text-center">
-            Sign in to access your financial data
+            Sign in to access your pockets
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-1">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              {* <TabsTrigger value="signup">Sign Up</TabsTrigger> *}
             </TabsList>
             
             <TabsContent value="signin">
