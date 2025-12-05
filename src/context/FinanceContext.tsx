@@ -152,9 +152,17 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
         }));
         
         setBooks(mappedBooks);
-        setCurrentBook(mappedBooks[0]);
         
-        const bookId = mappedBooks[0].id;
+        // Try to restore last selected book from localStorage
+        const savedBookId = localStorage.getItem('selectedBookId');
+        const savedBook = savedBookId 
+          ? mappedBooks.find(b => b.id === savedBookId) 
+          : null;
+        const selectedBook = savedBook || mappedBooks[0];
+        
+        setCurrentBook(selectedBook);
+        
+        const bookId = selectedBook.id;
         
         await Promise.all([
           fetchCategoriesForBook(bookId),
@@ -175,6 +183,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
           const mappedBook = { id: newBook.id, name: newBook.name };
           setBooks([mappedBook]);
           setCurrentBook(mappedBook);
+          localStorage.setItem('selectedBookId', newBook.id);
           await initializeDefaultData(newBook.id);
         }
       }
@@ -369,6 +378,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const setCurrentBookWithDataRefresh = async (book: BookType) => {
     setCurrentBook(book);
+    localStorage.setItem('selectedBookId', book.id);
     await Promise.all([
       fetchTransactionsForBook(book.id),
       fetchCategoriesForBook(book.id),
