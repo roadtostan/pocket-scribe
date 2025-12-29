@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner';
 import CalendarView from '@/components/CalendarView';
 import confetti from 'canvas-confetti';
+import HolidayCountdown from '@/components/HolidayCountdown';
 
 const Index = () => {
   const { 
@@ -108,6 +109,7 @@ const Index = () => {
   return (
     <Layout>
       <div className="pt-2 pb-20">
+        <HolidayCountdown />
         {/* Birthday Banner 
         <div className="mb-4 mx-4 relative overflow-hidden">
           <Card className="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white border-0 shadow-lg animate-pulse">
