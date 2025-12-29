@@ -38,8 +38,8 @@ const HolidayCountdown = () => {
 
   const TimeBlock = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
-      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[60px]">
-        <span className="text-2xl font-bold tabular-nums">
+      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[60px] flex items-center justify-center">
+        <span className="text-2xl font-bold tabular-nums text-center">
           {value.toString().padStart(2, '0')}
         </span>
       </div>
@@ -62,8 +62,8 @@ const HolidayCountdown = () => {
           <TimeBlock value={timeLeft.seconds} label="Seconds" />
         </div>
         
-        <div className="flex items-center justify-center gap-1 text-sm opacity-90">
-          <Clock size={14} />
+        <div className="flex items-center justify-center gap-1 text-xs opacity-90">
+          <Clock size={12} />
           <span>Time until Thursday, March 12 2026, GMT+7</span>
         </div>
       </CardContent>
