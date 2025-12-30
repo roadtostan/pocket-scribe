@@ -21,7 +21,8 @@ const HolidayCountdownPage = () => {
   const [today, setToday] = useState(new Date());
 
   const startDate = new Date('2025-12-28T00:00:00+07:00');
-  const endDate = new Date('2026-03-12T00:00:00+07:00');
+  const gridEndDate = new Date('2026-03-11T00:00:00+07:00'); // Last day before holiday
+  const holidayDate = new Date('2026-03-12T00:00:00+07:00'); // For display only
 
   useEffect(() => {
     const interval = setInterval(() => setToday(new Date()), 60000);
@@ -33,9 +34,20 @@ const HolidayCountdownPage = () => {
     return Math.round((end.getTime() - start.getTime()) / oneDay);
   };
 
-  const totalDays = getDaysBetween(startDate, endDate) + 1;
-  const daysPassed = Math.max(0, Math.min(totalDays, getDaysBetween(startDate, today) + 1));
-  const daysRemaining = Math.max(0, totalDays - daysPassed);
+  // Total grid days: Dec 28, 2025 to March 11, 2026 (inclusive) = 74 days
+  const totalDays = getDaysBetween(startDate, gridEndDate) + 1;
+  
+  // Get today at midnight for comparison
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startMidnight = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  
+  // Days passed: days fully completed before today (not including today)
+  const daysPassed = Math.max(0, Math.min(totalDays - 1, getDaysBetween(startMidnight, todayMidnight)));
+  
+  // Days remaining: days after today (not including today)
+  const daysRemaining = Math.max(0, totalDays - daysPassed - 1);
+  
+  // Progress based on days passed
   const progressPercentage = Math.round((daysPassed / totalDays) * 100);
 
   const generateDaysArray = () => {
@@ -44,12 +56,14 @@ const HolidayCountdownPage = () => {
     
     for (let i = 0; i < totalDays; i++) {
       const dayDate = new Date(currentDate);
+      const dayMidnight = new Date(dayDate.getFullYear(), dayDate.getMonth(), dayDate.getDate());
+      
       days.push({
         date: dayDate,
         dayNumber: i + 1,
-        isPassed: dayDate < new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-        isToday: dayDate.toDateString() === today.toDateString(),
-        isRemaining: dayDate > today
+        isPassed: dayMidnight < todayMidnight,
+        isToday: dayMidnight.getTime() === todayMidnight.getTime(),
+        isRemaining: dayMidnight > todayMidnight
       });
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -123,7 +137,7 @@ const HolidayCountdownPage = () => {
               <Progress value={progressPercentage} className="h-3 bg-rose-100 dark:bg-rose-900/30" />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{formatDate(startDate)}</span>
-                <span>{formatDate(endDate)}</span>
+                <span>{formatDate(holidayDate)}</span>
               </div>
             </div>
           </CardContent>
