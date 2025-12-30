@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, ChevronRight } from 'lucide-react';
 
 const HolidayCountdown = () => {
+  const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -48,11 +50,17 @@ const HolidayCountdown = () => {
   );
 
   return (
-    <Card className="bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white mb-4 overflow-hidden">
+    <Card 
+      className="bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 text-white mb-4 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={() => navigate('/holiday-countdown')}
+    >
       <CardContent className="pt-4 pb-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar size={20} />
-          <h2 className="font-bold text-lg">Our Holiday Countdown</h2>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Calendar size={20} />
+            <h2 className="font-bold text-lg">Our Holiday Countdown</h2>
+          </div>
+          <ChevronRight size={20} className="opacity-80" />
         </div>
         
         <div className="flex justify-center gap-3 mb-3">
