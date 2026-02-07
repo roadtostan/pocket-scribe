@@ -825,13 +825,9 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     addTransferTransaction,
   };
 
-  if (loading) {
-    return <HomeSkeleton />;
-  }
-
   return (
     <FinanceContext.Provider value={value}>
-      {children}
+      {loading ? <HomeSkeleton /> : children}
     </FinanceContext.Provider>
   );
 };
