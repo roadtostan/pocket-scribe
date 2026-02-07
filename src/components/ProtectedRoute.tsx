@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFinance } from '@/context/FinanceContext';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import HomeSkeleton from '@/components/HomeSkeleton';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,11 +18,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [session, user, navigate]);
 
   if (!session || !user) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <LoadingSpinner size={32} />
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
   return <>{children}</>;
