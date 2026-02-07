@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import HomeSkeleton from '@/components/HomeSkeleton';
 
 export type TransactionType = {
   id: string;
@@ -826,11 +826,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
   };
 
   if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <LoadingSpinner size={32} />
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
   return (
