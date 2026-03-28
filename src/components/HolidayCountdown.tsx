@@ -14,7 +14,7 @@ const HolidayCountdown = () => {
 
   useEffect(() => {
     // Target: March 12, 2026 00:00:00 WIB (GMT+7)
-    const targetDate = new Date('2026-03-19T00:00:00+07:00');
+    const targetDate = new Date('2026-12-24T00:00:00+07:00');
 
     const calculateTimeLeft = () => {
       const now = new Date();
@@ -72,7 +72,7 @@ const HolidayCountdown = () => {
         
         <div className="flex items-center justify-center gap-1 text-xs opacity-90">
           <Clock size={12} />
-          <span>Time until Thursday, March 19 2026, GMT+7</span>
+          <span>Time until Thursday, December 24 2026, GMT+7</span>
         </div>
       </CardContent>
     </Card>
