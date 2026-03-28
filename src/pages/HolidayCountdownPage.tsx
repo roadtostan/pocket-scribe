@@ -20,9 +20,9 @@ const HolidayCountdownPage = () => {
   const [quote] = useState(() => LDR_QUOTES[Math.floor(Math.random() * LDR_QUOTES.length)]);
   const [today, setToday] = useState(new Date());
 
-  const startDate = new Date('2025-12-28T00:00:00+07:00');
-  const gridEndDate = new Date('2026-03-11T00:00:00+07:00'); // Last day before holiday
-  const holidayDate = new Date('2026-03-12T00:00:00+07:00'); // For display only
+  const startDate = new Date('2026-03-19T00:00:00+07:00');
+  const gridEndDate = new Date('2026-12-23T00:00:00+07:00'); // Last day before holiday
+  const holidayDate = new Date('2026-12-24T00:00:00+07:00'); // For display only
 
   useEffect(() => {
     const interval = setInterval(() => setToday(new Date()), 60000);
@@ -219,7 +219,7 @@ const HolidayCountdownPage = () => {
         {/* Footer */}
         <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground pt-2">
           <Clock size={12} />
-          <span>Target: Thursday, March 12, 2026 • GMT+7</span>
+          <span>Target: Thursday, December 24, 2026 • GMT+7</span>
         </div>
       </div>
     </div>
