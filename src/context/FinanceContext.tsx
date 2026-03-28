@@ -84,6 +84,8 @@ type FinanceContextType = {
   fetchAccountsForBook: (bookId: string) => void;
   fetchMembersForBook: (bookId: string) => void;
   addTransferTransaction: (transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => void;
+  updateTransaction: (id: string, transaction: Omit<TransactionType, 'id' | 'bookId'>) => void;
+  updateTransferTransaction: (id: string, transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => void;
 };
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -629,6 +631,121 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     }
   };
 
+  const updateTransaction = async (id: string, transaction: Omit<TransactionType, 'id' | 'bookId'>) => {
+    try {
+      const oldTransaction = transactions.find(t => t.id === id);
+      if (!oldTransaction || oldTransaction.type === 'transfer') return;
+
+      const oldTx = oldTransaction as TransactionType;
+
+      // Reverse old balance
+      if (oldTx.type === 'income') {
+        const { data: oldBal } = await supabase.from('accounts').select('balance').eq('id', oldTx.accountId).single();
+        if (oldBal) await supabase.from('accounts').update({ balance: oldBal.balance - oldTx.amount }).eq('id', oldTx.accountId);
+      } else {
+        const { data: oldBal } = await supabase.from('accounts').select('balance').eq('id', oldTx.accountId).single();
+        if (oldBal) await supabase.from('accounts').update({ balance: oldBal.balance + oldTx.amount }).eq('id', oldTx.accountId);
+      }
+
+      // Apply new balance
+      if (transaction.type === 'income') {
+        const { data: newBal } = await supabase.from('accounts').select('balance').eq('id', transaction.accountId).single();
+        if (newBal) await supabase.from('accounts').update({ balance: newBal.balance + transaction.amount }).eq('id', transaction.accountId);
+      } else {
+        const { data: newBal } = await supabase.from('accounts').select('balance').eq('id', transaction.accountId).single();
+        if (newBal) await supabase.from('accounts').update({ balance: newBal.balance - transaction.amount }).eq('id', transaction.accountId);
+      }
+
+      const { data, error } = await supabase
+        .from('transactions')
+        .update({
+          amount: transaction.amount,
+          type: transaction.type,
+          category_id: transaction.categoryId,
+          account_id: transaction.accountId,
+          member_id: transaction.memberId,
+          date: transaction.date,
+          description: transaction.description
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setTransactions(prev => prev.map(t => t.id === id ? {
+          id: data.id,
+          bookId: data.book_id,
+          amount: data.amount,
+          type: data.type as 'income' | 'expense',
+          categoryId: data.category_id,
+          accountId: data.account_id,
+          memberId: data.member_id,
+          date: data.date,
+          description: data.description || ''
+        } : t));
+        await fetchAccountsForBook(currentBook.id);
+      }
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+    }
+  };
+
+  const updateTransferTransaction = async (id: string, transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => {
+    try {
+      const oldTransfer = transactions.find(t => t.id === id) as TransferTransactionType | undefined;
+      if (!oldTransfer) return;
+
+      // Reverse old transfer balances
+      const { data: oldFromBal } = await supabase.from('accounts').select('balance').eq('id', oldTransfer.fromAccountId).single();
+      if (oldFromBal) await supabase.from('accounts').update({ balance: oldFromBal.balance + oldTransfer.amount }).eq('id', oldTransfer.fromAccountId);
+      
+      const { data: oldToBal } = await supabase.from('accounts').select('balance').eq('id', oldTransfer.toAccountId).single();
+      if (oldToBal) await supabase.from('accounts').update({ balance: oldToBal.balance - oldTransfer.amount }).eq('id', oldTransfer.toAccountId);
+
+      // Apply new transfer balances
+      const { data: newFromBal } = await supabase.from('accounts').select('balance').eq('id', transfer.fromAccountId).single();
+      if (newFromBal) await supabase.from('accounts').update({ balance: newFromBal.balance - transfer.amount }).eq('id', transfer.fromAccountId);
+      
+      const { data: newToBal } = await supabase.from('accounts').select('balance').eq('id', transfer.toAccountId).single();
+      if (newToBal) await supabase.from('accounts').update({ balance: newToBal.balance + transfer.amount }).eq('id', transfer.toAccountId);
+
+      const { data, error } = await supabase
+        .from('transfer_transactions')
+        .update({
+          from_account_id: transfer.fromAccountId,
+          to_account_id: transfer.toAccountId,
+          amount: transfer.amount,
+          date: transfer.date,
+          description: transfer.description,
+          member_id: transfer.memberId
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setTransactions(prev => prev.map(t => t.id === id ? {
+          id: data.id,
+          bookId: data.book_id,
+          amount: data.amount,
+          type: 'transfer' as const,
+          fromAccountId: data.from_account_id,
+          toAccountId: data.to_account_id,
+          memberId: data.member_id,
+          date: data.date,
+          description: data.description || ''
+        } : t));
+        await fetchAccountsForBook(currentBook.id);
+      }
+    } catch (error) {
+      console.error('Error updating transfer:', error);
+    }
+  };
+
   const addCategory = async (category: Omit<CategoryType, 'id' | 'sortOrder'>) => {
     try {
       // Get the highest sort order for the category type
@@ -823,6 +940,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     fetchAccountsForBook,
     fetchMembersForBook,
     addTransferTransaction,
+    updateTransaction,
+    updateTransferTransaction,
   };
 
   return (
