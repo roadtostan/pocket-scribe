@@ -84,6 +84,8 @@ type FinanceContextType = {
   fetchAccountsForBook: (bookId: string) => void;
   fetchMembersForBook: (bookId: string) => void;
   addTransferTransaction: (transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => void;
+  updateTransaction: (id: string, transaction: Omit<TransactionType, 'id' | 'bookId'>) => void;
+  updateTransferTransaction: (id: string, transfer: Omit<TransferTransactionType, 'id' | 'bookId'>) => void;
 };
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -823,6 +825,8 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
     fetchAccountsForBook,
     fetchMembersForBook,
     addTransferTransaction,
+    updateTransaction,
+    updateTransferTransaction,
   };
 
   return (
