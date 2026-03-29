@@ -62,9 +62,9 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
           description: t.description || '',
         });
       }
-      toast({ title: 'Transaction duplicated', description: 'A copy has been created with today\'s date.' });
+      toast.success('Transaction duplicated with today\'s date');
     } catch {
-      toast({ title: 'Failed to duplicate', variant: 'destructive' });
+      toast.error('Failed to duplicate transaction');
     }
   };
 
