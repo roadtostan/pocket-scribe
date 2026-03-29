@@ -7,7 +7,7 @@ import CategoryIcon from './CategoryIcon';
 import { Trash2, Pencil, Copy } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLocation } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import EditTransactionDialog from './EditTransactionDialog';
 import {
   AlertDialog,
