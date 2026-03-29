@@ -4,7 +4,7 @@ import { useFinance, TransactionType, TransferTransactionType } from '@/context/
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatCurrency';
 import CategoryIcon from './CategoryIcon';
-import { Trash2, Pencil, Copy } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -186,14 +186,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
             </div>
           </div>
         <div className="flex items-center gap-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleDuplicate()}
-              className="text-gray-400 hover:text-primary h-8 w-8"
-            >
-              <Copy size={15} />
-            </Button>
+          
             <Button
               variant="ghost"
               size="icon"
