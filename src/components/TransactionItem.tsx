@@ -34,8 +34,34 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
   const filterType = isFilteredView 
     ? location.pathname.split('/')[2]
     : null;
-  
-  if (transaction.type === "transfer") {
+
+  const handleDuplicate = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (transaction.type === 'transfer') {
+      const t = transaction as TransferTransactionType;
+      addTransferTransaction({
+        fromAccountId: t.fromAccountId,
+        toAccountId: t.toAccountId,
+        amount: t.amount,
+        memberId: t.memberId,
+        date: today,
+        description: t.description || '',
+        type: 'transfer',
+      });
+    } else {
+      const t = transaction as TransactionType;
+      addTransaction({
+        amount: t.amount,
+        type: t.type,
+        categoryId: t.categoryId,
+        accountId: t.accountId,
+        memberId: t.memberId,
+        date: today,
+        description: t.description || '',
+      });
+    }
+  };
+
     const fromAccount = accounts.find((a) => a.id === transaction.fromAccountId);
     const toAccount = accounts.find((a) => a.id === transaction.toAccountId);
     const member = members.find((m) => m.id === transaction.memberId);
