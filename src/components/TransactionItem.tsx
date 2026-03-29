@@ -7,6 +7,7 @@ import CategoryIcon from './CategoryIcon';
 import { Trash2, Pencil, Copy } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 import EditTransactionDialog from './EditTransactionDialog';
 import {
   AlertDialog,
@@ -35,30 +36,35 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
     ? location.pathname.split('/')[2]
     : null;
 
-  const handleDuplicate = () => {
+  const handleDuplicate = async () => {
     const today = new Date().toISOString().split('T')[0];
-    if (transaction.type === 'transfer') {
-      const t = transaction as TransferTransactionType;
-      addTransferTransaction({
-        fromAccountId: t.fromAccountId,
-        toAccountId: t.toAccountId,
-        amount: t.amount,
-        memberId: t.memberId,
-        date: today,
-        description: t.description || '',
-        type: 'transfer',
-      });
-    } else {
-      const t = transaction as TransactionType;
-      addTransaction({
-        amount: t.amount,
-        type: t.type,
-        categoryId: t.categoryId,
-        accountId: t.accountId,
-        memberId: t.memberId,
-        date: today,
-        description: t.description || '',
-      });
+    try {
+      if (transaction.type === 'transfer') {
+        const t = transaction as TransferTransactionType;
+        await addTransferTransaction({
+          fromAccountId: t.fromAccountId,
+          toAccountId: t.toAccountId,
+          amount: t.amount,
+          memberId: t.memberId,
+          date: today,
+          description: t.description || '',
+          type: 'transfer',
+        });
+      } else {
+        const t = transaction as TransactionType;
+        await addTransaction({
+          amount: t.amount,
+          type: t.type,
+          categoryId: t.categoryId,
+          accountId: t.accountId,
+          memberId: t.memberId,
+          date: today,
+          description: t.description || '',
+        });
+      }
+      toast.success('Transaction duplicated with today\'s date');
+    } catch {
+      toast.error('Failed to duplicate transaction');
     }
   };
 
@@ -139,7 +145,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() => onDelete!(transaction.id)}
+                onClick={() => { onDelete!(transaction.id); toast.success('Transaction deleted'); }}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete
@@ -241,7 +247,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => onDelete!(transaction.id)}
+              onClick={() => { onDelete!(transaction.id); toast.success('Transaction deleted'); }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
