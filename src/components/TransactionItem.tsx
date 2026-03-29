@@ -36,6 +36,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
     ? location.pathname.split('/')[2]
     : null;
 
+  /*
   const handleDuplicate = async () => {
     const today = new Date().toISOString().split('T')[0];
     try {
@@ -67,6 +68,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
       toast.error('Failed to duplicate transaction');
     }
   };
+  */
 
   if (transaction.type === "transfer") {
     const fromAccount = accounts.find((a) => a.id === transaction.fromAccountId);
@@ -89,16 +91,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
               </div>
             </div>
           <div className="flex items-center gap-0">
-              /*
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleDuplicate()}
-                className="text-gray-400 hover:text-primary h-8 w-8"
-              >
-                <Copy size={15} />
-              </Button>
-            */
+              
               <Button
                 variant="ghost"
                 size="icon"
