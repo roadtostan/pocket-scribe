@@ -89,7 +89,8 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
               </div>
             </div>
           <div className="flex items-center gap-0">
-              <Button
+              /*
+            <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => handleDuplicate()}
@@ -97,6 +98,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
               >
                 <Copy size={15} />
               </Button>
+            */
               <Button
                 variant="ghost"
                 size="icon"
