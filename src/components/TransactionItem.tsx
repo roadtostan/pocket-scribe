@@ -62,6 +62,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
     }
   };
 
+  if (transaction.type === "transfer") {
     const fromAccount = accounts.find((a) => a.id === transaction.fromAccountId);
     const toAccount = accounts.find((a) => a.id === transaction.toAccountId);
     const member = members.find((m) => m.id === transaction.memberId);
