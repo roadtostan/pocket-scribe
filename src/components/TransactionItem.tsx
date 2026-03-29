@@ -145,7 +145,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() => onDelete!(transaction.id)}
+                onClick={() => { onDelete!(transaction.id); toast.success('Transaction deleted'); }}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete
@@ -247,7 +247,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => onDelete!(transaction.id)}
+              onClick={() => { onDelete!(transaction.id); toast.success('Transaction deleted'); }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
