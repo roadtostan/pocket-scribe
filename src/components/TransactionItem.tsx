@@ -4,7 +4,7 @@ import { useFinance, TransactionType, TransferTransactionType } from '@/context/
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatCurrency';
 import CategoryIcon from './CategoryIcon';
-import { Trash2, Pencil } from 'lucide-react';
+import { Trash2, Pencil, Copy } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLocation } from 'react-router-dom';
 import EditTransactionDialog from './EditTransactionDialog';
@@ -25,7 +25,7 @@ interface TransactionItemProps {
 }
 
 const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
-  const { categories, accounts, members } = useFinance();
+  const { categories, accounts, members, addTransaction, addTransferTransaction } = useFinance();
   const location = useLocation();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -34,7 +34,34 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
   const filterType = isFilteredView 
     ? location.pathname.split('/')[2]
     : null;
-  
+
+  const handleDuplicate = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (transaction.type === 'transfer') {
+      const t = transaction as TransferTransactionType;
+      addTransferTransaction({
+        fromAccountId: t.fromAccountId,
+        toAccountId: t.toAccountId,
+        amount: t.amount,
+        memberId: t.memberId,
+        date: today,
+        description: t.description || '',
+        type: 'transfer',
+      });
+    } else {
+      const t = transaction as TransactionType;
+      addTransaction({
+        amount: t.amount,
+        type: t.type,
+        categoryId: t.categoryId,
+        accountId: t.accountId,
+        memberId: t.memberId,
+        date: today,
+        description: t.description || '',
+      });
+    }
+  };
+
   if (transaction.type === "transfer") {
     const fromAccount = accounts.find((a) => a.id === transaction.fromAccountId);
     const toAccount = accounts.find((a) => a.id === transaction.toAccountId);
@@ -55,23 +82,31 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDuplicate()}
+                className="text-gray-400 hover:text-primary h-8 w-8"
+              >
+                <Copy size={15} />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setEditOpen(true)}
-                className="text-gray-400 hover:text-primary"
+                className="text-gray-400 hover:text-primary h-8 w-8"
               >
-                <Pencil size={16} />
+                <Pencil size={15} />
               </Button>
               {onDelete && (
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setDeleteOpen(true)}
-                  className="text-gray-400 hover:text-expense"
+                  className="text-gray-400 hover:text-expense h-8 w-8"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={15} />
                 </Button>
               )}
             </div>
@@ -149,23 +184,31 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleDuplicate()}
+              className="text-gray-400 hover:text-primary h-8 w-8"
+            >
+              <Copy size={15} />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setEditOpen(true)}
-              className="text-gray-400 hover:text-primary"
+              className="text-gray-400 hover:text-primary h-8 w-8"
             >
-              <Pencil size={16} />
+              <Pencil size={15} />
             </Button>
             {onDelete && (
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setDeleteOpen(true)}
-                className="text-gray-400 hover:text-expense"
+                className="text-gray-400 hover:text-expense h-8 w-8"
               >
-                <Trash2 size={16} />
+                <Trash2 size={15} />
               </Button>
             )}
           </div>
