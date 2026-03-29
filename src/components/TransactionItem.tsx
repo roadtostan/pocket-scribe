@@ -8,6 +8,16 @@ import { Trash2, Pencil } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLocation } from 'react-router-dom';
 import EditTransactionDialog from './EditTransactionDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
 
 interface TransactionItemProps {
   transaction: TransactionType | TransferTransactionType;
@@ -18,6 +28,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
   const { categories, accounts, members } = useFinance();
   const location = useLocation();
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   
   const isFilteredView = location.pathname.includes('/filtered-transactions');
   const filterType = isFilteredView 
@@ -57,7 +68,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDelete(transaction.id)}
+                  onClick={() => setDeleteOpen(true)}
                   className="text-gray-400 hover:text-expense"
                 >
                   <Trash2 size={16} />
@@ -82,6 +93,25 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
           </div>
         </div>
         <EditTransactionDialog transaction={transaction} open={editOpen} onOpenChange={setEditOpen} />
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this transaction? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => onDelete!(transaction.id)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     );
   }
@@ -132,7 +162,7 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => onDelete(transaction.id)}
+                onClick={() => setDeleteOpen(true)}
                 className="text-gray-400 hover:text-expense"
               >
                 <Trash2 size={16} />
@@ -157,6 +187,25 @@ const TransactionItem = ({ transaction, onDelete }: TransactionItemProps) => {
         </div>
       </div>
       <EditTransactionDialog transaction={transaction} open={editOpen} onOpenChange={setEditOpen} />
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => onDelete!(transaction.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
