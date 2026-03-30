@@ -1,21 +1,34 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, parseISO, isSameMonth, isSameYear } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TransactionItem from './TransactionItem';
+import { Input } from './ui/input';
+import { Search } from 'lucide-react';
 
 const TransactionList = () => {
   const { transactions, deleteTransaction, selectedDate } = useFinance();
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Filter transactions for the selected month and year
-  const filteredTransactions = transactions.filter(t => {
-    const transactionDate = parseISO(t.date);
-    return isSameMonth(transactionDate, selectedDate) && 
-           isSameYear(transactionDate, selectedDate);
-  });
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      const transactionDate = parseISO(t.date);
+      const matchesDate = isSameMonth(transactionDate, selectedDate) && 
+             isSameYear(transactionDate, selectedDate);
+      if (!matchesDate) return false;
+      
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const desc = (t.description || '').toLowerCase();
+        return desc.includes(query);
+      }
+      return true;
+    });
+  }, [transactions, selectedDate, searchQuery]);
   
   // Group transactions by date
   const transactionsByDate = filteredTransactions.reduce((groups, transaction) => {
@@ -36,10 +49,21 @@ const TransactionList = () => {
     <Card className="w-full animate-fade-in">
       <CardHeader>
         <CardTitle>Transaction History</CardTitle>
+        <div className="relative mt-2">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
       </CardHeader>
       <CardContent className="px-0">
         {sortedDates.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">No transactions yet</div>
+          <div className="text-center py-8 text-muted-foreground">
+            {searchQuery ? 'No transactions found' : 'No transactions yet'}
+          </div>
         ) : (
           sortedDates.map(date => {
             const dailyTransactions = transactionsByDate[date];
