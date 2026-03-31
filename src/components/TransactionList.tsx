@@ -7,11 +7,13 @@ import { id } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TransactionItem from './TransactionItem';
 import { Input } from './ui/input';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
+import { Button } from './ui/button';
 
 const TransactionList = () => {
   const { transactions, deleteTransaction, selectedDate } = useFinance();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   
   // Filter transactions for the selected month and year
   const filteredTransactions = useMemo(() => {
@@ -48,16 +50,32 @@ const TransactionList = () => {
   return (
     <Card className="w-full animate-fade-in">
       <CardHeader>
-        <CardTitle>Transaction History</CardTitle>
-        <div className="relative mt-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by description..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex items-center justify-between">
+          <CardTitle>Transaction History</CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setShowSearch(!showSearch);
+              if (showSearch) setSearchQuery('');
+            }}
+            className="h-8 w-8"
+          >
+            {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+          </Button>
         </div>
+        {showSearch && (
+          <div className="relative mt-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+              autoFocus
+            />
+          </div>
+        )}
       </CardHeader>
       <CardContent className="px-0">
         {sortedDates.length === 0 ? (
