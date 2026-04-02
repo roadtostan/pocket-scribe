@@ -7,7 +7,7 @@ import { id } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TransactionItem from './TransactionItem';
 import { Input } from './ui/input';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 
 const TransactionList = () => {
