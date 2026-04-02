@@ -10,10 +10,13 @@ import { Input } from './ui/input';
 import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 
+const ITEMS_PER_PAGE = 20;
+
 const TransactionList = () => {
   const { transactions, deleteTransaction, selectedDate } = useFinance();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   
   // Filter transactions for the selected month and year
   const filteredTransactions = useMemo(() => {
