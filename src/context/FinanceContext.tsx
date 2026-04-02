@@ -624,7 +624,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       }
 
       // Update local state
-      setTransactions(transactions.filter(t => t.id !== id));
+      setTransactions(prev => prev.filter(t => t.id !== id));
       await fetchAccountsForBook(currentBook.id);
     } catch (error) {
       console.error('Error deleting transaction:', error);
