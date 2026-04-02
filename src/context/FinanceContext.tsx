@@ -517,7 +517,7 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
       if (error) throw error;
 
       if (data) {
-        setTransactions([...transactions, {
+        setTransactions(prev => [...prev, {
           id: data.id,
           bookId: data.book_id,
           amount: data.amount,
