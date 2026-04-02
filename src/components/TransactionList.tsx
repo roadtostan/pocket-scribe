@@ -7,13 +7,16 @@ import { id } from 'date-fns/locale';
 import { formatCurrency } from '@/lib/formatCurrency';
 import TransactionItem from './TransactionItem';
 import { Input } from './ui/input';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
+
+const ITEMS_PER_PAGE = 20;
 
 const TransactionList = () => {
   const { transactions, deleteTransaction, selectedDate } = useFinance();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   
   // Filter transactions for the selected month and year
   const filteredTransactions = useMemo(() => {
@@ -31,18 +34,39 @@ const TransactionList = () => {
       return true;
     });
   }, [transactions, selectedDate, searchQuery]);
+
+  // Reset page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedDate, searchQuery]);
   
-  // Group transactions by date
-  const transactionsByDate = filteredTransactions.reduce((groups, transaction) => {
+  // Sort all filtered transactions by date desc, then id desc
+  const sortedTransactions = useMemo(() => {
+    return [...filteredTransactions].sort((a, b) => {
+      const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return Number(b.id) - Number(a.id);
+    });
+  }, [filteredTransactions]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedTransactions.length / ITEMS_PER_PAGE));
+  
+  // Paginate
+  const paginatedTransactions = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return sortedTransactions.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedTransactions, currentPage]);
+
+  // Group paginated transactions by date
+  const transactionsByDate = paginatedTransactions.reduce((groups, transaction) => {
     const date = transaction.date;
     if (!groups[date]) {
       groups[date] = [];
     }
     groups[date].push(transaction);
     return groups;
-  }, {} as Record<string, typeof transactions>);
+  }, {} as Record<string, typeof paginatedTransactions>);
 
-  // Sort dates in descending order
   const sortedDates = Object.keys(transactionsByDate).sort((a, b) => {
     return new Date(b).getTime() - new Date(a).getTime();
   });
@@ -83,47 +107,75 @@ const TransactionList = () => {
             {searchQuery ? 'No transactions found' : 'No transactions yet'}
           </div>
         ) : (
-          sortedDates.map(date => {
-            const dailyTransactions = transactionsByDate[date];
-            const dailyIncomeTotal = dailyTransactions
-              .filter(t => t.type === 'income')
-              .reduce((sum, t) => sum + t.amount, 0);
-            const dailyExpenseTotal = dailyTransactions
-              .filter(t => t.type === 'expense')
-              .reduce((sum, t) => sum + t.amount, 0);
-            
-            return (
-              <div key={date}>
-                <div className="px-4 py-2 bg-gray-50 font-medium">
-                  {format(parseISO(date), 'eeee, dd MMMM yyyy', { locale: id })}
-                </div>
-                {dailyTransactions
-                  .sort((a, b) => Number(b.id) - Number(a.id))
-                  .map(transaction => (
+          <>
+            {sortedDates.map(date => {
+              const dailyTransactions = transactionsByDate[date];
+              const dailyIncomeTotal = dailyTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + t.amount, 0);
+              const dailyExpenseTotal = dailyTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+              
+              return (
+                <div key={date}>
+                  <div className="px-4 py-2 bg-muted font-medium">
+                    {format(parseISO(date), 'eeee, dd MMMM yyyy', { locale: id })}
+                  </div>
+                  {dailyTransactions.map(transaction => (
                     <TransactionItem
                       key={transaction.id} 
                       transaction={transaction}
                       onDelete={deleteTransaction}
                     />
-                  ))
-                }
-                <div className="p-3 bg-gray-50/50 flex flex-col md:flex-row justify-between items-start md:items-center text-sm gap-2">
-                  <span>Daily Totals:</span>
-                  <div className="space-x-4">
-                    <span className="text-income">
-                      In: {formatCurrency(dailyIncomeTotal)}
-                    </span>
-                    <span className="text-expense">
-                      Out: {formatCurrency(dailyExpenseTotal)}
-                    </span>
-                    <span className={dailyIncomeTotal - dailyExpenseTotal >= 0 ? 'text-income' : 'text-expense'}>
-                      Net: {formatCurrency(dailyIncomeTotal - dailyExpenseTotal)}
-                    </span>
+                  ))}
+                  <div className="p-3 bg-muted/50 flex flex-col md:flex-row justify-between items-start md:items-center text-sm gap-2">
+                    <span>Daily Totals:</span>
+                    <div className="space-x-4">
+                      <span className="text-income">
+                        In: {formatCurrency(dailyIncomeTotal)}
+                      </span>
+                      <span className="text-expense">
+                        Out: {formatCurrency(dailyExpenseTotal)}
+                      </span>
+                      <span className={dailyIncomeTotal - dailyExpenseTotal >= 0 ? 'text-income' : 'text-expense'}>
+                        Net: {formatCurrency(dailyIncomeTotal - dailyExpenseTotal)}
+                      </span>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t">
+                <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages} ({sortedTransactions.length} items)
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage(p => p - 1)}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            );
-          })
+            )}
+          </>
         )}
       </CardContent>
     </Card>
