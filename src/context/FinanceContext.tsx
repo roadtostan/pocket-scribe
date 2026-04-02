@@ -198,21 +198,39 @@ export const FinanceProvider: React.FC<FinanceProviderProps> = ({ children }) =>
 
   const fetchTransactionsForBook = useCallback(async (bookId: string) => {
     try {
-      // Fetch regular transactions
-      const { data: transactionsData, error: transactionsError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('book_id', bookId);
+      // Fetch all regular transactions with pagination to avoid 1000-row limit
+      let allTransactionsData: any[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('book_id', bookId)
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        if (data) allTransactionsData = [...allTransactionsData, ...data];
+        if (!data || data.length < pageSize) break;
+        from += pageSize;
+      }
 
-      if (transactionsError) throw transactionsError;
+      // Fetch all transfer transactions with pagination
+      let allTransferData: any[] = [];
+      from = 0;
+      while (true) {
+        const { data, error } = await supabase
+          .from('transfer_transactions')
+          .select('*')
+          .eq('book_id', bookId)
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        if (data) allTransferData = [...allTransferData, ...data];
+        if (!data || data.length < pageSize) break;
+        from += pageSize;
+      }
 
-      // Fetch transfer transactions
-      const { data: transferData, error: transferError } = await supabase
-        .from('transfer_transactions')
-        .select('*')
-        .eq('book_id', bookId);
-
-      if (transferError) throw transferError;
+      const transactionsData = allTransactionsData;
+      const transferData = allTransferData;
 
       const regularTransactions = transactionsData?.map(transaction => ({
         id: transaction.id,
