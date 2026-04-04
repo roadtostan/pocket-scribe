@@ -94,6 +94,7 @@ const TransactionForm = () => {
     
     // Reset form
     setAmount('');
+    setDisplayAmount('');
     setDescription('');
     setShowCalculator(false);
     setCalculatorExpression('');
