@@ -141,7 +141,9 @@ const TransactionForm = () => {
     try {
       // eslint-disable-next-line no-eval
       const result = eval(calculatorExpression);
-      setAmount(result.toString());
+      const resultStr = Math.round(result).toString();
+      setAmount(resultStr);
+      setDisplayAmount(formatWithDots(resultStr));
       setCalculatorExpression('');
       setShowCalculator(false);
     } catch (error) {
