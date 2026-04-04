@@ -191,9 +191,10 @@ const TransactionForm = () => {
               <Input
                 id="amount"
                 name="amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                value={displayAmount}
+                onChange={handleAmountChange}
                 placeholder="0"
+                inputMode="numeric"
                 className="flex-1"
               />
               <Button 
