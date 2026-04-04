@@ -111,6 +111,20 @@ const TransactionForm = () => {
     return cat.type === 'expense' || cat.type === 'both';
   }).sort((a, b) => a.sortOrder - b.sortOrder);
 
+  const formatWithDots = (value: string): string => {
+    const parts = value.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parts.length > 1 ? parts[0] + ',' + parts[1] : parts[0];
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\./g, '');
+    if (raw === '' || /^\d*$/.test(raw)) {
+      setAmount(raw);
+      setDisplayAmount(raw ? formatWithDots(raw) : '');
+    }
+  };
+
   const handleCalcInput = (value: string) => {
     setCalculatorExpression(prev => prev + value);
   };
