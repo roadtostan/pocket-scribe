@@ -143,7 +143,7 @@ const EditTransactionDialog = ({ transaction, open, onOpenChange }: EditTransact
 
           <div className="space-y-2">
             <Label>Amount</Label>
-            <Input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" />
+            <Input value={displayAmount} onChange={handleAmountChange} placeholder="0" inputMode="numeric" />
           </div>
 
           {!isTransfer && (
