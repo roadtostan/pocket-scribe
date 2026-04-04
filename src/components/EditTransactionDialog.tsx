@@ -34,6 +34,7 @@ const EditTransactionDialog = ({ transaction, open, onOpenChange }: EditTransact
   const [transactionType, setTransactionType] = useState<'income' | 'expense' | 'transfer'>(transaction.type);
   const [date, setDate] = useState<Date>(parseISO(transaction.date));
   const [amount, setAmount] = useState<string>(transaction.amount.toString());
+  const [displayAmount, setDisplayAmount] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>(!isTransfer ? (transaction as TransactionType).categoryId : '');
   const [accountId, setAccountId] = useState<string>(
     isTransfer ? (transaction as TransferTransactionType).fromAccountId : (transaction as TransactionType).accountId
