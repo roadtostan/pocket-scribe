@@ -45,10 +45,26 @@ const EditTransactionDialog = ({ transaction, open, onOpenChange }: EditTransact
   const [memberId, setMemberId] = useState<string>(transaction.memberId);
   const [description, setDescription] = useState<string>(transaction.description || '');
 
+  const formatWithDots = (value: string): string => {
+    const parts = value.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parts.length > 1 ? parts[0] + ',' + parts[1] : parts[0];
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\./g, '');
+    if (raw === '' || /^\d*$/.test(raw)) {
+      setAmount(raw);
+      setDisplayAmount(raw ? formatWithDots(raw) : '');
+    }
+  };
+
   useEffect(() => {
     setTransactionType(transaction.type);
     setDate(parseISO(transaction.date));
-    setAmount(transaction.amount.toString());
+    const amtStr = transaction.amount.toString();
+    setAmount(amtStr);
+    setDisplayAmount(formatWithDots(amtStr));
     setCategoryId(!isTransfer ? (transaction as TransactionType).categoryId : '');
     setAccountId(isTransfer ? (transaction as TransferTransactionType).fromAccountId : (transaction as TransactionType).accountId);
     setToAccountId(isTransfer ? (transaction as TransferTransactionType).toAccountId : '');
