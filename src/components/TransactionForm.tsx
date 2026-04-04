@@ -32,6 +32,7 @@ const TransactionForm = () => {
   const [transactionType, setTransactionType] = useState<'income' | 'expense' | 'transfer'>('expense');
   const [date, setDate] = useState<Date>(new Date());
   const [amount, setAmount] = useState<string>('');
+  const [displayAmount, setDisplayAmount] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
   const [accountId, setAccountId] = useState<string>('');
   const [toAccountId, setToAccountId] = useState<string>('');
